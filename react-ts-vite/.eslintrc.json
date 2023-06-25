@@ -1,0 +1,48 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:prettier/recommended",
+    "react-app",
+    "prettier"
+  ],
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "@typescript-eslint",
+    "react-hooks",
+    "prettier"
+  ],
+  "rules": {
+    "prettier/prettier": ["error"],
+    "linebreak-style": [
+      "error",
+      "unix"
+    ],
+    "semi": "off",
+    "quotes": ["error", "double"],
+    "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
+    "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
+    "no-console": "warn",
+    "no-eval": "error",
+    "react/no-unescaped-entities": ["warn", {
+      "forbid": [">", "}", "\""]
+    }],
+    "react/prop-types": "off"
+  }
+}

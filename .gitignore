@@ -1,0 +1,19 @@
+.DS_Store
+/.build
+/Packages
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm/config/registries.json
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+.netrc
+/toPDF/node_modules
+/.swiftpm
+
+# Frontend
+/node_modules
+/.env
+/.idea
+/build
+/dist
+/cypress/videos
