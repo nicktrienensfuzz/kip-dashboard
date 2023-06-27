@@ -1,0 +1,4 @@
+{
+	mdmName = "{{device_name}}";
+	squareLocationId = "{{SquareLocationId}}";
+}

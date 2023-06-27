@@ -28,8 +28,10 @@ struct kip_dashboard: AsyncParsableCommand {
     
     @Option(name: .shortAndLong)
     var generate: Bool = false
-    
+
     func generate() async throws {
+        #if canImport(AppKit)
+
         if var date = "2022-04-20".asDate?.rawStartOfDay {
             let outputFile = Path("itemMakes_noOutliers.csv")
             var data = ""
@@ -62,9 +64,13 @@ struct kip_dashboard: AsyncParsableCommand {
                                         )
                                             .array.unwrapped())
         try outputFile.write(data)
+#endif
     }
     
+    
     mutating func run() async throws {
+
+
         if generate {
             try await generate()
         }

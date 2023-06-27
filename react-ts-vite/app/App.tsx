@@ -46,7 +46,7 @@ export default function App() {
       </AppBar>
 
       <Container>
-        <Box component="main" sx={{ p: 3 }}>
+        <Box component="main" sx={{ p: 3, maxWidth: "900px" }}>
           <Stack spacing={2} sx={{ margin: 3 }}>
             <StoreOrdersLineGraph name="Store Orders by Week" />
             <StoreOrdersBarGraph

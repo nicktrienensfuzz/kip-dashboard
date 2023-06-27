@@ -1,0 +1,7 @@
+# Frontend
+/node_modules
+/.env
+/.idea
+/build
+/dist
+/cypress/videos

@@ -13,7 +13,7 @@ public enum CSV { }
 public typealias CSVJSON = Tagged<CSV, JSON>
 
 
-
+#if canImport(AppKit)
 
 func jsonToCsv(jsonArray: [JSON], includeHeader: Bool = true ) throws -> String {
     // Extract headers
@@ -71,7 +71,7 @@ extension CSVJSON {
                     headers.append(newKey)
                 }
             }
-        } else if let jsonArray = json.array {
+        } else if let jsonArray: [JSON] = json.array {
             for jsonElement in jsonArray {
                 CSVJSON(rawValue: jsonElement).extractHeadersHelper( parentKey: parentKey, headers: &headers)
             }
@@ -97,3 +97,4 @@ extension JSON {
         }
     }
 }
+#endif

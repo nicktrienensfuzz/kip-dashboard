@@ -14,21 +14,22 @@ class ColorAssigner {
     var colors: [String]
     init() {
         
-        var colorString = """
-'rgb(255, 99, 132)'
-'rgb(255, 159, 64)'
-'rgb(255, 205, 86)'
-'rgb(75, 192, 192)'
-'rgb(54, 162, 235)'
-'rgb(153, 102, 255)'
-'rgb(201, 203, 207)'
+        let colorString = """
+'rgba(255, 205, 86, 0.40)'
+'rgba(255, 205, 86, 0.600)'
+'rgba(255, 205, 86, 0.80)'
+'rgba(255, 205, 86, 1)'
+'rgba(75, 192, 192, 1)'
+'rgba(54, 162, 235)'
+'rgba(153, 102, 255)'
+'rgba(201, 203, 207)'
 """
         colors = colorString.split(separator: "\n").map{ String($0) }
     }
     func take() -> String {
-        print(colors)
+        //print(colors)
         let color = colors.removeFirst()
-        print(colors)
+        //print(colors)
         return color
     }
 }
@@ -49,17 +50,21 @@ extension kip_dashboard {
             let ranges = try [DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
                                         end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 0.weeks,
                                         label: "Last Week"),
-                              DataRange(start:      Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
+                              DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
                                         end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
                                         label: "2 Weeks Ago"),
-                              DataRange(start:            Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
+                              DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
                                         end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
-                                        label: "3 Weeks Ago")
+                                        label: "3 Weeks Ago"),
+                              DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 4.weeks,
+                                        end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
+                                        label: "4 Weeks Ago")
+                              
             ].reversed()
             let colors = ColorAssigner()
 
             let dataSets = try await ranges.asyncMap { range -> JSON in
-                var data = try await stores.asyncMap { location -> JSON in
+                let data = try await stores.asyncMap { location -> JSON in
                     return try await OpenSearchMetrics.ordersCount(
                         startDate: range.start,
                         endDate: range.end,
@@ -184,16 +189,18 @@ extension kip_dashboard {
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.toData()))
         }
         
+#if canImport(AppKit)
         app.router.get("/items.csv") { request -> HBResponse in
             let body = try await jsonToCsv(jsonArray:  OpenSearchMetrics.dataPrepForML( startDate: Date() - 120.days, endDate: Date() - 35.days ).array.unwrapped())
             
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.data(using: .utf8).unwrapped()))
         }
-        
+
         app.router.get("/itemsTest.csv") { request -> HBResponse in
             let body = try await jsonToCsv(jsonArray:  OpenSearchMetrics.dataPrepForML( startDate: Date() - 25.days, endDate: Date()  - 24.days ).array!)
             
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.data(using: .utf8).unwrapped()))
         }
+#endif
     }
 }

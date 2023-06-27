@@ -1,2 +1,2 @@
-  docker build ./ -t swift-5.7-builder --no-cache --progress=plain
+  docker build ./ -t swift-5.8-kip --progress=plain
  
