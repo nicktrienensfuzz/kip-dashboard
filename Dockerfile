@@ -59,12 +59,14 @@ RUN nversion="$(node --version)" && echo $nversion
 COPY . /work
 WORKDIR /work
 
-RUN cd toPDF && rm -rf node_modules && npm install
+# RUN cd toPDF && rm -rf node_modules && npm install
 
-EXPOSE 80
+EXPOSE 8080
 
-# RUN swift build -c release
-# RUN cmd="$(swift build -c release --show-bin-path)" && echo $cmd
-# CMD $cmd
-WORKDIR /work/toPDF
-CMD node server.js
+RUN swift build -c release
+RUN cmd="$(swift build -c release --show-bin-path)" && echo $cmd
+CMD /work/.build/aarch64-unknown-linux-gnu/release/kip-dashboard
+#CMD cmd="$(swift build -c release --show-bin-path)" && "$(cmd)/kip-dashboard"
+
+# WORKDIR /work/toPDF
+# CMD node server.js

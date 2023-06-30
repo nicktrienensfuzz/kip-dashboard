@@ -10,7 +10,7 @@ interface StoreOrdersLineGraphProps {
 
 const StoreOrdersLineGraph: React.FunctionComponent<
   StoreOrdersLineGraphProps
-> = ({ name }) => {
+> = ({ title }) => {
   const [chartData, setChartData] = useState({});
   const [isLoading, setLoading] = useState(true);
 
@@ -59,7 +59,7 @@ const StoreOrdersLineGraph: React.FunctionComponent<
   return (
     <div>
       <Typography variant="h5" component="div">
-        {name}
+        {title}
       </Typography>
       {isLoading ? (
         <div>Loading...</div>

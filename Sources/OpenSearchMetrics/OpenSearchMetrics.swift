@@ -1095,6 +1095,19 @@ class OpenSearchMetrics {
         dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
         
+        let locationQuery: String
+        if locationId.count > 5 {
+            locationQuery = """
+                        {
+                          "match_phrase": {
+                            "locationId": "\(locationId)"
+                          }
+                        },
+            """
+        } else {
+            locationQuery = ""
+        }
+        
         let query = """
         {
           "aggs": {},
@@ -1112,11 +1125,7 @@ class OpenSearchMetrics {
                 {
                   "match_all": {}
                 },
-                {
-                  "match_phrase": {
-                    "locationId": "\(locationId)"
-                  }
-                },
+                \(locationQuery)
                 {
                   "range": {
                     "createdAt": {

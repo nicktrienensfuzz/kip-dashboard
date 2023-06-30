@@ -35,32 +35,141 @@ class ColorAssigner {
 }
 
 extension kip_dashboard {
+    struct DataRange {
+        let start: Date
+        let end: Date
+        let label: String
+    }
     
+    func ranges() throws -> [DataRange] {
+        return try [DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
+                                    end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 0.weeks,
+                                    label: "Last Week"),
+                          DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
+                                    end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
+                                    label: "2 Weeks Ago"),
+                          DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
+                                    end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
+                                    label: "3 Weeks Ago"),
+                          DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 4.weeks,
+                                    end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
+                                    label: "4 Weeks Ago")]
+    }
     func configureApi(_ app: HBApplication) {
+        app.router.get("/itemMetrics.json") { request -> HBResponse in
+            
+            let d = try await ProductMetrics.productTable()
+            
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = .currency
+            numberFormatter.currencyCode = "USD"
+            let convertedBody = d.aggregations.products.buckets.array?.map{ product -> JSON in
+                
+                
+                var productJ = JSON()
+                productJ["id"] = JSON(UUID().uuidString)
+                productJ["name"] = product.key
+                productJ["modifierCount"] = product.modifierCount.value
+                if let formattedNumber = numberFormatter.string(from: NSNumber(value: (product.cost.value.float ?? Float(product.cost.value.int ?? 0) )/100)) {
+                    productJ["cost"] = JSON( formattedNumber )
+                }else {
+                    productJ["cost"] = JSON( "$\((product.cost.value.float ?? Float(product.cost.value.int ?? 0) )/100)" )
+                }
+                
+                productJ["placedToCompletion"] = product.placedToCompletion.value
+                productJ["claimedToCompletion"] = product.claimedToCompletion.value
+                
+                return productJ
+            } ?? []
+            
+            return try HBResponse(status: .ok,
+                                  headers: .init([("contentType", "application/json")]),
+                                  body: .data( convertedBody.toData()))
+
+        }
         
-        struct DataRange {
-            let start: Date
-            let end: Date
-            let label: String
+        app.router.get("/orderSalesTrend.json") { request -> HBResponse in
+            let d = try await ProductMetrics.orderData()
+//            print(d.aggregations.orders.buckets)
+            print(d.Dates)
+
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = .currency
+            numberFormatter.currencyCode = "USD"
+            
+            print((d.aggregations.orders.buckets.array ?? []).count)
+            var array: [JSON] = (d.aggregations.orders.buckets.array ?? [])
+            array.removeLast()
+            array.removeFirst()
+            print(array.count)
+            let convertedBody = array.map{ product -> JSON in
+                var productJ = JSON()
+                productJ["id"] = JSON(UUID().uuidString)
+                productJ["name"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd"))
+                productJ["date"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd/yyyy"))
+                productJ["itemCount"] = product.itemCount.value
+                productJ["orderCount"] = product.doc_count
+                if let formattedNumber = numberFormatter.string(from: NSNumber(value: (product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)) {
+                    productJ["sales"] = JSON( formattedNumber )
+                } else {
+                    productJ["sales"] = JSON( "$\((product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)" )
+                }
+                
+                return productJ
+            }
+            
+            class Metric: Codable, CustomDebugStringConvertible {
+                init(name: String,displayName: String = "", labels: [JSON] = [], data: [JSON] = []) {
+                    self.name = name
+                    self.displayName = displayName
+                    self.labels = labels
+                    self.data = data
+                }
+                
+                var name: String
+                var displayName: String
+                var labels: [JSON]
+                var data: [JSON]
+                
+                    var debugDescription: String {
+                        return "Metric: \(name)\nLabels: \(labels)\nData: \(data)"
+                    }
+                
+            }
+
+            var mappings = [String: Metric]()
+            convertedBody.forEach { json in
+                let keys = ["itemCount", "orderCount", "sales"]
+                keys.forEach { key in
+                    let name = key //json.name.string ?? "unknown"
+                    let item = mappings[key] ?? Metric(name: name)
+                    item.displayName = key.trainCaseToTitleCase()
+                    item.labels.append(json.date)
+                    item.data.append(json[key])
+                    mappings[key] = item
+                }
+            }
+            print(mappings)
+            let group = try mappings.values
+                .sorted(by: { a, b in
+                    a.displayName < b.displayName
+                })
+                .reversed()
+                .map({ try $0.json() })
+            
+            let bothWays = json { [
+                "list": convertedBody,
+                "grouped": group
+            ]}
+            return try HBResponse(status: .ok,
+                                  headers: .init([("contentType", "application/json")]),
+                                  body: .data( bothWays.toData()))
         }
         
         app.router.get("/locations2.json") { request -> HBResponse in
             
             let stores = Configuration.locations()
-            let ranges = try [DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
-                                        end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 0.weeks,
-                                        label: "Last Week"),
-                              DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
-                                        end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
-                                        label: "2 Weeks Ago"),
-                              DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
-                                        end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 2.weeks,
-                                        label: "3 Weeks Ago"),
-                              DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 4.weeks,
-                                        end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
-                                        label: "4 Weeks Ago")
-                              
-            ].reversed()
+            let ranges = try ranges().reversed()
             let colors = ColorAssigner()
 
             let dataSets = try await ranges.asyncMap { range -> JSON in
@@ -99,7 +208,7 @@ extension kip_dashboard {
             
             let body = Configuration.locations()
             let data = try await body.asyncMap({ loc -> JSON in
-                var location = loc
+                let location = loc
                 let lastWeek = try await OpenSearchMetrics.ordersCount(
                     startDate: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
                     endDate: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped(),
@@ -202,5 +311,42 @@ extension kip_dashboard {
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.data(using: .utf8).unwrapped()))
         }
 #endif
+    }
+}
+
+
+extension String {
+    func trainCaseToTitleCase() -> String {
+         let splitWords = self.splitBefore(separator: { $0.isUppercase })
+         
+         let titleCase = splitWords
+             .map { $0.lowercased() }  // Convert to lowercase
+             .map { $0.prefix(1).uppercased() + $0.dropFirst() }  // Capitalize first letter
+             .joined(separator: " ")
+         
+         return titleCase
+     }
+    
+    func trainCaseToSentenceCase() -> String {
+        let splitWords = self.splitBefore(separator: { $0.isUppercase })
+        
+        var sentenceCase = splitWords.joined(separator: " ").lowercased()
+        
+        sentenceCase = sentenceCase.prefix(1).uppercased() + sentenceCase.dropFirst()
+        
+        return sentenceCase
+    }
+    
+    func splitBefore(separator isSeparator: (Character) throws -> Bool) rethrows -> [SubSequence] {
+        var result: [SubSequence] = []
+        var start = startIndex
+        for index in indices {
+            if try isSeparator(self[index]) {
+                result.append(self[start..<index])
+                start = index
+            }
+        }
+        result.append(self[start..<endIndex])
+        return result
     }
 }

@@ -14,6 +14,8 @@ import Hummingbird
 import HummingbirdFoundation
 import AsyncHTTPClient
 import HummingbirdTLS
+import PathKit
+import JSON
 
 // https://search-kitchen-analytics-q75y3tp53rwklzyvk3ijhutx2i.us-west-2.es.amazonaws.com/_dashboards/app/dashboards#/view/4e98fef0-0afc-11ee-8c31-2f09b331f0c3?_g=(filters:!(),refreshInterval:(pause:!t,value:0),time:(from:'2022-08-03T08:40:34.427Z',to:'2023-06-12T07:00:00.000Z'))&_a=(description:'',filters:!(('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'831fda50-b51b-11ec-a0c3-1396670d8f01',key:locationId.keyword,negate:!t,params:(query:LKA2D3148RFDC),type:phrase),query:(match_phrase:(locationId.keyword:LKA2D3148RFDC))),('$state':(store:appState),meta:(alias:!n,disabled:!f,index:'831fda50-b51b-11ec-a0c3-1396670d8f01',key:locationId.keyword,negate:!t,params:(query:LGFRKXEFPBDVA),type:phrase),query:(match_phrase:(locationId.keyword:LGFRKXEFPBDVA)))),fullScreenMode:!f,options:(hidePanelTitles:!f,useMargins:!t),query:(language:kuery,query:''),timeRestore:!t,title:'Orders%20by%20day',viewMode:view)
 
@@ -30,7 +32,9 @@ struct kip_dashboard: AsyncParsableCommand {
     var generate: Bool = false
 
     func generate() async throws {
-        #if canImport(AppKit)
+        
+        
+#if canImport(AppKit)
 
         if var date = "2022-04-20".asDate?.rawStartOfDay {
             let outputFile = Path("itemMakes_noOutliers.csv")
@@ -69,8 +73,7 @@ struct kip_dashboard: AsyncParsableCommand {
     
     
     mutating func run() async throws {
-
-
+       
         if generate {
             try await generate()
         }
@@ -79,7 +82,8 @@ struct kip_dashboard: AsyncParsableCommand {
         app.middleware.add(HBLogRequestsMiddleware(.debug))
         app.middleware.add(HBFileMiddleware((Path.current + Path("public/")).string, searchForIndexHtml: true, application: app))
         app.middleware.add(HBCORSMiddleware(allowOrigin: .all))
-        
+        app.addPersist(using: .memory)
+
         configure(app)
         configureApi(app)
 
