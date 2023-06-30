@@ -168,7 +168,7 @@ extension kip_dashboard {
         
         app.router.get("/locations2.json") { request -> HBResponse in
             
-            let stores = Configuration.locations()
+            let stores = Configuration.locations(ordered: true)
             let ranges = try ranges().reversed()
             let colors = ColorAssigner()
 
@@ -189,7 +189,6 @@ extension kip_dashboard {
                         ]
                     }
                 }
-            
 //           .sorted(by: { a, b in
 //                a.data.array?.first?.int ?? 0 > b.data.array?.first?.int ?? 0
 //            })

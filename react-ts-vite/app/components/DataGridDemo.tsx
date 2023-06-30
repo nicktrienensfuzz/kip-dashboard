@@ -59,20 +59,23 @@ export default function DataGridDemo() {
 
   return (
     <Box sx={{ width: "100%" }}>
-      <Typography variant="h5" component="div" >Item Metrics</Typography>
+      <Typography variant="h5" component="div">
+        Item Metrics
+      </Typography>
       {isLoading ? (
         <div>Loading...</div>
       ) : (
         <DataGrid
           rows={chartData}
           columns={columns}
-          // initialState={{
-          //   pagination: {
-          //     paginationModel: {
-          //       pageSize: 45,
-          //     },
-          //   },
-          // }}
+          hideFooterPagination={true}
+          initialState={{
+            pagination: false,
+            //     paginationModel: {
+            //       pageSize: 45,
+            //     },
+            //   },
+          }}
           // pageSizeOptions={[5]}
           // checkboxSelection
           disableRowSelectionOnClick

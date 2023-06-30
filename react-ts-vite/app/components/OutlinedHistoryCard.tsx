@@ -1,9 +1,10 @@
+/* eslint no-eval: 0 */
 import * as React from "react";
 import { Box, Card, CardActions, CardContent, Typography } from "@mui/material";
 
 import { MetricData } from "../models/MetricData.js";
 import { useEffect, useState } from "react";
-import { Bar, Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
 
 interface OutlinedHistoryCardProps {
   object: MetricData;
@@ -18,8 +19,8 @@ const OutlinedHistoryCard: React.FunctionComponent<
   useEffect(() => {
     const datasets = {
       label: object.displayName,
-      // backgroundColor: rgb(70, 200, 220),
-      // borderColor: rgb(70, 200, 220),
+      backgroundColor: eval("'rgb(255, 99, 132)'"),
+      borderColor: eval("'rgb(255, 99, 132)'"),
       data: object.data,
       borderWidth: 2,
     };
