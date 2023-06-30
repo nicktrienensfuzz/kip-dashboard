@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { usePrimaryStore } from "./store";
-import { selectCount, selectIncrementBy } from "./store/selectors";
 
-import Card from "./components/Card";
+import DataGridDemo from "./components/DataGridDemo";
 import StoreOrdersBarGraph from "./components/StoreOrdersBarGraph";
 import StoreOrdersLineGraph from "./components/StoreOrdersLineGraph";
 import { Box, Typography, Stack, AppBar, Toolbar } from "@mui/material";
@@ -19,6 +17,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import OrderSummary from "./components/OrderSummary";
 
 ChartJS.register(
   CategoryScale,
@@ -32,9 +31,6 @@ ChartJS.register(
 );
 
 export default function App() {
-  const [plainCount, setPlainCount] = useState(0);
-  const incrementBy = usePrimaryStore(selectIncrementBy);
-  const count = usePrimaryStore(selectCount);
   return (
     <>
       <AppBar component="nav" position="sticky">
@@ -48,19 +44,14 @@ export default function App() {
       <Container>
         <Box component="main" sx={{ p: 3, maxWidth: "900px" }}>
           <Stack spacing={2} sx={{ margin: 3 }}>
-            <StoreOrdersLineGraph name="Store Orders by Week" />
-            <StoreOrdersBarGraph
-              title="Store Orders per Week past 3 weeks"
-              dataUrl="http://127.0.0.1:8080/locations.json"
-            />
+            <OrderSummary />
+            <StoreOrdersLineGraph title="Store Orders by Week" />
+
             <StoreOrdersBarGraph
               title="Store Orders per Week past 3 weeks"
               dataUrl="http://127.0.0.1:8080/locations2.json"
             />
-            <Stack direction="row" spacing={2} sx={{ margin: 3 }}>
-              <Card />
-              <Card />
-            </Stack>
+            <DataGridDemo />
           </Stack>
         </Box>
       </Container>
