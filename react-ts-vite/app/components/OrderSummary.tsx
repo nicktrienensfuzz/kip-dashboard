@@ -39,8 +39,8 @@ export default function OrderSummary() {
           </Typography>
           <Stack direction="row" spacing={2} >
             <OutlinedHistoryCard object={metricData[0]} />
-            <OutlinedHistoryCard object={metricData[1]} />
             <OutlinedHistoryCard object={metricData[2]} />
+            <OutlinedHistoryCard object={metricData[4]} />
           </Stack>
           <br/>
           <br/>
@@ -49,9 +49,9 @@ export default function OrderSummary() {
             Beta
           </Typography>
           <Stack direction="row" spacing={2} >
-            <OutlinedCard title="Order make time" value="5:52 m" />
+            <OutlinedHistoryCard object={metricData[1]} />
+            <OutlinedHistoryCard object={metricData[3]} />
             <OutlinedCard title="Item make time" value="4:05 m" />
-            <OutlinedCard title="Modifiers per item" value="1.4" />
             <OutlinedCard title="Orders with customization" value="70%" />
           </Stack>
         </Stack>

@@ -39,6 +39,16 @@ struct ProductMetrics {
           "sum": {
             "field": "itemCount"
           }
+        },
+        "placedToCompletion": {
+          "avg": {
+            "field": "placedToCompletion"
+          }
+        },
+        "modifierCount": {
+          "avg": {
+            "field": "lineItems.modifierCount"
+          }
         }
       }
     }

@@ -1,0 +1,60 @@
+service: kpi-dashboard-service
+
+frameworkVersion: '3'
+useDotenv: true
+configValidationMode: error
+
+package:
+    artifact: build/lambda/kip-dashboard/kip-dashboard.zip
+
+custom:
+  apiKey-dev: da39a3ee5e6b4b0d3255bfef95601890afd80709
+  apiKey-prod: 3da541559918a808c2402bba5012f6c60b27661c
+  
+provider:
+  name: aws
+  httpApi:
+    payload: '2.0'
+    cors: true
+    # Use provided.al2 if you build with M1, provided if you build with x86_64
+  runtime: provided
+  # Use arm64 if you build with M1, or x86_64 if you build with intel
+  #architecture: arm64
+
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'us-west-2'}
+  profile: fuzztival
+  
+  environment:
+    openSearchEndpoint: ${env:openSearchEndpoint}
+    openSearchUsername: ${env:openSearchUsername}
+    openSearchPassword: ${env:openSearchPassword}
+    ENTRYPOINT_URL: https://mogzv5pkef.execute-api.us-west-2.amazonaws.com/dev
+    AWS_ACCESS_KEY_ID1: ${env:AWS_ACCESS_KEY_ID}
+    AWS_SECRET_ACCESS_KEY1: ${env:AWS_SECRET_ACCESS_KEY}
+    
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "*"
+        - Effect: Allow
+          Action:
+            - es:ESHttpPost
+            - es:ESHttpPut
+          Resource: "*"
+
+
+functions:
+  base:
+    handler: handle
+    memorySize: 1024
+    timeout: 300
+    events:
+        - httpApi: '*'
+
+

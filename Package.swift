@@ -18,7 +18,9 @@ let package = Package(
           .package(url: "https://github.com/kylef/PathKit",from: "1.0.1"),
           .package(url: "https://github.com/apple/swift-atomics",from: "1.1.0"),
           .package(url: "https://github.com/pointfreeco/swift-dependencies",from: "0.5.1"),
-        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.4.0"),
+          .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.4.0"),
+            .package(url: "https://github.com/swift-sprinter/Breeze.git", from: "0.2.0"),
+            .package(url: "https://github.com/nicktrienensfuzz/hummingbird-lambda.git", branch: "main"),
 
     ],
     targets: [
@@ -38,6 +40,8 @@ let package = Package(
                 .product(name: "Atomics",package: "swift-atomics"),
                 .product(name: "Dependencies",package: "swift-dependencies"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
+                .product(name: "HummingbirdLambda",package: "hummingbird-lambda"),
+
 
             ],
             path: "Sources"),

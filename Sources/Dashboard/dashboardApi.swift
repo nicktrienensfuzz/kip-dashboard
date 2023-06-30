@@ -56,6 +56,7 @@ extension kip_dashboard {
                                     label: "4 Weeks Ago")]
     }
     func configureApi(_ app: HBApplication) {
+        
         app.router.get("/itemMetrics.json") { request -> HBResponse in
             
             let d = try await ProductMetrics.productTable()
@@ -108,6 +109,8 @@ extension kip_dashboard {
                 productJ["name"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd"))
                 productJ["date"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd/yyyy"))
                 productJ["itemCount"] = product.itemCount.value
+                productJ["placedToCompletion"] = product.placedToCompletion.value
+                productJ["modifierCount"] = product.modifierCount.value
                 productJ["orderCount"] = product.doc_count
 //                if let formattedNumber = numberFormatter.string(from: NSNumber(value: (product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)) {
 //                    productJ["sales"] = JSON( formattedNumber )
@@ -139,7 +142,7 @@ extension kip_dashboard {
 
             var mappings = [String: Metric]()
             convertedBody.forEach { json in
-                let keys = ["itemCount", "orderCount", "sales"]
+                let keys = ["itemCount", "orderCount", "sales", "placedToCompletion", "modifierCount"]
                 keys.forEach { key in
                     let name = key //json.name.string ?? "unknown"
                     let item = mappings[key] ?? Metric(name: name)
