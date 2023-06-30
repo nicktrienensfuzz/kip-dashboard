@@ -67,3 +67,10 @@ section {
   border-color: #BA1B1B;
   cursor: pointer;
 }
+
+@media print {
+  .pagebreak {
+      page-break-after: always !important;
+      page-break-inside: avoid !important;
+  }
+}

@@ -56,7 +56,7 @@ const StoreOrdersBarGraph: React.FunctionComponent<
   }, []);
 
   return (
-    <div>
+    <div className="pageBreak">
       <Typography variant="h5" component="div">
         {title}
       </Typography>

@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Stack } from "@mui/material";
+import { Stack, Typography } from "@mui/material";
 import axios from "axios";
-// import OutlinedCard from "./OutlinedCard.tsx";
+import OutlinedCard from "./OutlinedCard.tsx";
 import OutlinedHistoryCard from "./OutlinedHistoryCard.js";
 import { MetricData } from "../models/MetricData.js";
 
@@ -34,15 +34,25 @@ export default function OrderSummary() {
         <div>Loading...</div>
       ) : (
         <Stack>
-          {/* <Stack direction="row" spacing={2} sx={{ margin: 3 }}>
-            <OutlinedCard title="Sales" value={chartData[3].sales} />
-            <OutlinedCard title="Orders" value={chartData[3].orderCount} />
-            <OutlinedCard title="Items Made" value={chartData[3].itemCount} />
-          </Stack> */}
-          <Stack direction="row" spacing={2} sx={{ margin: 3 }}>
+           <Typography variant="h4" gutterBottom>
+            Overview
+          </Typography>
+          <Stack direction="row" spacing={2} >
             <OutlinedHistoryCard object={metricData[0]} />
             <OutlinedHistoryCard object={metricData[1]} />
             <OutlinedHistoryCard object={metricData[2]} />
+          </Stack>
+          <br/>
+          <br/>
+          <br/>
+          <Typography variant="h5" color="text.secondary" >
+            Beta
+          </Typography>
+          <Stack direction="row" spacing={2} >
+            <OutlinedCard title="Order make time" value="5:52 m" />
+            <OutlinedCard title="Item make time" value="4:05 m" />
+            <OutlinedCard title="Modifiers per item" value="1.4" />
+            <OutlinedCard title="Orders with customization" value="70%" />
           </Stack>
         </Stack>
       )}

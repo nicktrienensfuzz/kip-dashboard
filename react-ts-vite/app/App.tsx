@@ -48,7 +48,7 @@ export default function App() {
             <StoreOrdersLineGraph title="Store Orders by Week" />
 
             <StoreOrdersBarGraph
-              title="Store Orders per Week past 3 weeks"
+              title="Store Orders per Week past 4 weeks"
               dataUrl="http://127.0.0.1:8080/locations2.json"
             />
             <DataGridDemo />
