@@ -109,11 +109,11 @@ extension kip_dashboard {
                 productJ["date"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd/yyyy"))
                 productJ["itemCount"] = product.itemCount.value
                 productJ["orderCount"] = product.doc_count
-                if let formattedNumber = numberFormatter.string(from: NSNumber(value: (product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)) {
-                    productJ["sales"] = JSON( formattedNumber )
-                } else {
-                    productJ["sales"] = JSON( "$\((product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)" )
-                }
+//                if let formattedNumber = numberFormatter.string(from: NSNumber(value: (product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)) {
+//                    productJ["sales"] = JSON( formattedNumber )
+//                } else {
+                    productJ["sales"] = JSON( "\((product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0) )/100)" )
+//                }
                 
                 return productJ
             }
@@ -144,7 +144,7 @@ extension kip_dashboard {
                     let name = key //json.name.string ?? "unknown"
                     let item = mappings[key] ?? Metric(name: name)
                     item.displayName = key.trainCaseToTitleCase()
-                    item.labels.append(json.date)
+                    item.labels.append(json.name)
                     item.data.append(json[key])
                     mappings[key] = item
                 }

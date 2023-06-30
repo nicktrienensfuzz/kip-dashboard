@@ -3,7 +3,7 @@ import { Box, Card, CardActions, CardContent, Typography } from "@mui/material";
 
 import { MetricData } from "../models/MetricData.js";
 import { useEffect, useState } from "react";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 
 interface OutlinedHistoryCardProps {
   object: MetricData;
@@ -26,40 +26,57 @@ const OutlinedHistoryCard: React.FunctionComponent<
     // console.log(datasets);
     const d = {
       labels: object.labels,
-      dataSets: [datasets],
+      datasets: [datasets],
     };
 
-    console.log(d);
-    // setLoading(false);
+    // console.log(d);
+    setLoading(false);
     setChartData(d);
-  }, []);
+  }, [object.data, object.displayName, object.labels]);
 
   const options = {
     responsive: true,
     plugins: {
       legend: {
+        display: false,
         position: "top" as const,
       },
     },
   };
 
+  var value = object.data[object.data.length - 1];
+  if (object.displayName === "Sales") {
+    const formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 0,
+    });
+    value = formatter.format(object.data[object.data.length - 1]);
+  }
+
   return (
     <Box sx={{ minWidth: 275, maxWidth: 345 }}>
       <Card variant="outlined">
         <CardContent>
-          <Typography variant="h4" color="text.secondary" gutterBottom>
+          <Typography variant="h5" color="text.secondary" gutterBottom>
             {object.displayName}
           </Typography>
-          <Typography variant="h5" component="div"></Typography>
-          <Typography variant="h3" color="text.secondary" gutterBottom>
-            {object.data[0]}
+
+          <Typography variant="h3">{value}</Typography>
+          <Typography
+            variant="h7"
+            component="div"
+            color="text.secondary"
+            gutterBottom
+          >
+            Last Week
           </Typography>
         </CardContent>
         <CardActions>
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <Bar data={chartData} options={options} />
+            <Line data={chartData} options={options} />
           )}
         </CardActions>
       </Card>

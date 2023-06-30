@@ -12,7 +12,7 @@ import JSON
 
 struct ProductMetrics {
     static func orderData() async throws -> JSON {
-        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 6.weeks
+        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
        
         let dateFormatter = DateFormatter()

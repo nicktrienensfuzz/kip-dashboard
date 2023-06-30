@@ -31,9 +31,6 @@ const StoreOrdersBarGraph: React.FunctionComponent<
         };
       });
 
-      // console.log(response.data);
-      // console.log(dataset);
-
       setChartData({
         labels: months,
         datasets: datasets,

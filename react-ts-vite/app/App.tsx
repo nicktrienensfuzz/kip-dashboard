@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 
 import DataGridDemo from "./components/DataGridDemo";
@@ -42,8 +42,8 @@ export default function App() {
       </AppBar>
 
       <Container>
-        <Box component="main" sx={{ p: 3, maxWidth: "900px" }}>
-          <Stack spacing={2} sx={{ margin: 3 }}>
+        <Box component="main" sx={{ p: 3, maxWidth: "990px" }}>
+          <Stack spacing={6} sx={{ margin: 3 }}>
             <OrderSummary />
             <StoreOrdersLineGraph title="Store Orders by Week" />
 
