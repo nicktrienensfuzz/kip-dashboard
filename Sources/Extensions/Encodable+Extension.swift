@@ -26,7 +26,7 @@ public extension Encodable {
         return try usableEncoder.encode(self)
     }
 
-    func toString(_ encoder: JSONEncoder? = nil, outputFormatting: JSONEncoder.OutputFormatting = [.sortedKeys, .prettyPrinted]) throws -> String {
+    func toString(_ encoder: JSONEncoder? = nil, outputFormatting: JSONEncoder.OutputFormatting = [.sortedKeys]) throws -> String {
         if let string = String(data: try toData(encoder, outputFormatting: outputFormatting), encoding: .utf8) {
             return string
         }

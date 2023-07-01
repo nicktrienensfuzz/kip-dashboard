@@ -1,0 +1,81 @@
+name: PRDStarter
+on:
+  push:
+    branches: ["main", "dev"]
+
+jobs:
+    compile:
+        name: Docker
+        environment: Dev
+        runs-on: ubuntu-latest
+        steps:
+          - name: Check out the repo
+            uses: actions/checkout@v3
+
+          - name: create .env files
+            working-directory: .
+            run: |
+              echo "${{ secrets.PRDENV }}" > .env
+              echo "${{ secrets.PRDENV }}" > dev.env
+              
+          - name: list .env
+            working-directory: .
+            run: |
+                ls -al .env
+                ls -al dev.env
+
+          - name: Use Node.js 
+            uses: actions/setup-node@v3
+            with:
+              node-version: 16.x
+              
+          - name: Install Serverless
+            working-directory: .
+            run: |
+                npm install -g serverless
+                
+          - name: Install dotenv
+            working-directory: .
+            run: |
+                npm install dotenv --save
+                
+          - name: run dotenv
+            working-directory: .
+            run: |
+                dotenv
+                
+          # - name: copy file
+          #   uses: canastro/copy-action@0.0.2
+          #   with:
+          #     source: "ChatJira/Dockerfile"
+          #     target: "Dockerfile"
+              
+          - name: Build Docker container
+            run: |
+             docker build -t my-container .    
+            
+          - name: Run Docker container, swift build
+            working-directory: .
+            run: |
+               docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" --name my-container-instance my-container swift build --product PRDStarter -c release
+
+          - name: Run Docker container, swift package
+            working-directory: .
+            run: |
+               docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" --name my-container-instance my-container scripts/package.sh PRDStarter
+        
+          - name: Serverless config setup profile
+            working-directory: .
+            env:
+              AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}   
+            run: |
+              serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY --profile fuzztival
+              
+          - name: Run Serverless deploy
+            working-directory: .
+            run: |
+              serverless deploy
+            env:
+              AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+              AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

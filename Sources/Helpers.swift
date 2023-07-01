@@ -7,7 +7,6 @@
 
 import Foundation
 
-
 extension Configuration {
     static func locations( ordered: Bool = false) -> [Location] {
         let storesText: String

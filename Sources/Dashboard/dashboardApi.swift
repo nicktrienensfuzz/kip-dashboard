@@ -137,7 +137,6 @@ extension kip_dashboard {
                     var debugDescription: String {
                         return "Metric: \(name)\nLabels: \(labels)\nData: \(data)"
                     }
-                
             }
 
             var mappings = [String: Metric]()

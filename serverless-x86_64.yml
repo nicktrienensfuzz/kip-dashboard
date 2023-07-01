@@ -11,6 +11,9 @@ custom:
   apiKey-dev: da39a3ee5e6b4b0d3255bfef95601890afd80709
   apiKey-prod: 3da541559918a808c2402bba5012f6c60b27661c
   
+plugins:
+  - serverless-dotenv-plugin
+  
 provider:
   name: aws
   httpApi:
@@ -32,7 +35,7 @@ provider:
     ENTRYPOINT_URL: https://mogzv5pkef.execute-api.us-west-2.amazonaws.com/dev
     AWS_ACCESS_KEY_ID1: ${env:AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY1: ${env:AWS_SECRET_ACCESS_KEY}
-    
+
   iam:
     role:
       statements:

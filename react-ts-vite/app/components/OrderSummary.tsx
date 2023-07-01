@@ -12,6 +12,8 @@ export default function OrderSummary() {
 
   // This function will be only called once
   async function fetchData() {
+    console.log(import.meta.env.VITE_URL);
+
     try {
       const response = await axios.get(
         "http://127.0.0.1:8080/orderSalesTrend.json"
@@ -42,9 +44,9 @@ export default function OrderSummary() {
             <OutlinedHistoryCard object={metricData[2]} />
             <OutlinedHistoryCard object={metricData[4]} />
           </Stack>
-          <br/>
-          <br/>
-          <br/>
+          <br />
+          <br />
+          <br />
           <Typography variant="h5" color="text.secondary" >
             Beta
           </Typography>

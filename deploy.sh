@@ -1,3 +1,5 @@
+make archive_lambda
+
 BUILD_ARCH=`uname -m`
 if [ $BUILD_ARCH = "arm64" ];
 then
