@@ -21,6 +21,7 @@ import JSON
 import HummingbirdLambda
 import AWSLambdaEvents
 import AWSLambdaRuntimeCore
+import HummingbirdAuth
 //
 //@main
 //struct kip_dashboard: HBLambda {
@@ -116,8 +117,15 @@ struct kip_dashboard: AsyncParsableCommand {
         app.middleware.add(HBCORSMiddleware(allowOrigin: .all))
         app.addPersist(using: .memory)
         
-        configure(app)
-        configureApi(app)
+        @Dependency(\.configuration) var configuration
+        
+        app.decoder = JSONDecoder()
+        app.encoder = JSONEncoder()
+        let jwtAuthenticator = JWTAuthenticator()
+        
+        configure(app, jwtAuthenticator: jwtAuthenticator)
+        configureApi(app, jwtAuthenticator: jwtAuthenticator)
+        configureAuth(app, jwtAuthenticator: jwtAuthenticator)
         
         try app.start()
         app.wait()

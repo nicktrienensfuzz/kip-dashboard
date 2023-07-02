@@ -11,67 +11,67 @@ import NIO
 import NIOFoundationCompat
 import NIOHTTP1
 
-public class Endpoint: EndpointRequest {
-    public let method: NIOHTTP1.HTTPMethod
-    public let path: String
-    public var headers: [String: String]?
-    public let body: Data?
-
-    public init(
-        method: NIOHTTP1.HTTPMethod,
-        path: String,
-        headers: [String: String]? = nil,
-        body: Data? = nil
-    ) {
-        self.method = method
-        self.path = path
-        self.body = body
-        self.headers = headers
-    }
-}
-
-public protocol EndpointRequest {
-    var method: NIOHTTP1.HTTPMethod { get }
-    var path: String { get }
-    var headers: [String: String]? { get }
-    var body: Data? { get }
-
-    func cURLRepresentation() -> String
-}
-
-public extension EndpointRequest {
-    func cURLRepresentation() -> String {
-        var components = ["curl"]
-
-        if method != NIOHTTP1.HTTPMethod.GET {
-            components.append("-X \(method.rawValue)")
-        }
-
-        if let headers = headers {
-            let headerStrings: [String] = headers.map { pair -> String in
-                let escapedValue = String(describing: pair.value).replacingOccurrences(of: "\"", with: "\\\"")
-                return "-H \"\(pair.key): \(escapedValue)\""
-            }
-            components.append(contentsOf: headerStrings)
-        }
-
-        if let httpBodyData = body, let httpBody = String(data: httpBodyData, encoding: .utf8) {
-            // let escapedBody = httpBody.replacingOccurrences(of: "\\\"", with: "\\\\\"")
-            components.append("-d '\(httpBody)'")
-        }
-
-        components.append("\"\(path)\"")
-        return components.joined(separator: " ")
-    }
-}
+//public class Endpoint: EndpointRequest {
+//    public let method: NIOHTTP1.HTTPMethod
+//    public let path: String
+//    public var headers: [String: String]?
+//    public let body: Data?
+//
+//    public init(
+//        method: NIOHTTP1.HTTPMethod,
+//        path: String,
+//        headers: [String: String]? = nil,
+//        body: Data? = nil
+//    ) {
+//        self.method = method
+//        self.path = path
+//        self.body = body
+//        self.headers = headers
+//    }
+//}
+//
+//public protocol EndpointRequest {
+//    var method: NIOHTTP1.HTTPMethod { get }
+//    var path: String { get }
+//    var headers: [String: String]? { get }
+//    var body: Data? { get }
+//
+//    func cURLRepresentation() -> String
+//}
+//
+//public extension EndpointRequest {
+//    func cURLRepresentation() -> String {
+//        var components = ["curl"]
+//
+//        if method != NIOHTTP1.HTTPMethod.GET {
+//            components.append("-X \(method.rawValue)")
+//        }
+//
+//        if let headers = headers {
+//            let headerStrings: [String] = headers.map { pair -> String in
+//                let escapedValue = String(describing: pair.value).replacingOccurrences(of: "\"", with: "\\\"")
+//                return "-H \"\(pair.key): \(escapedValue)\""
+//            }
+//            components.append(contentsOf: headerStrings)
+//        }
+//
+//        if let httpBodyData = body, let httpBody = String(data: httpBodyData, encoding: .utf8) {
+//            // let escapedBody = httpBody.replacingOccurrences(of: "\\\"", with: "\\\\\"")
+//            components.append("-d '\(httpBody)'")
+//        }
+//
+//        components.append("\"\(path)\"")
+//        return components.joined(separator: " ")
+//    }
+//}
 
 public extension HTTPClient {
     func request(_ target: EndpointRequest, baseURLString _: String = "", printCurl: Bool = false) throws -> EventLoopFuture<HTTPClient.Response> {
         if printCurl {
             print(target.cURLRepresentation())
         }
-        var request = try HTTPClient.Request(url: target.path, method: target.method)
-        if let body = target.body {
+        var request = try HTTPClient.Request(url: target.urlPath, method: target.method)
+        if let body = try target.requestBody() {
             request.body = .data(body)
         }
         target.headers?.forEach { (key: String, value: String) in

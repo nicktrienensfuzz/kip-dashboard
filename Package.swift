@@ -8,6 +8,10 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
+//    products: [
+//        .executable(name: "kip-dashboard", targets: ["kip-dashboard"]),
+//        .library(name: "Networker", targets: ["Networker"])
+//    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
           .package(url: "https://github.com/skelpo/JSON",from: "1.1.4"),
@@ -21,7 +25,10 @@ let package = Package(
           .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.4.0"),
           .package(url: "https://github.com/swift-sprinter/Breeze.git", from: "0.2.0"),
         //    .package(url: "https://github.com/hummingbird-project/hummingbird-lambda.git", exact: "1.0.0-rc.3"),
-          .package(url: "https://github.com/nicktrienensfuzz/hummingbird-lambda.git", branch: "main")
+          .package(url: "https://github.com/nicktrienensfuzz/hummingbird-lambda.git", branch: "main"),
+        .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird-auth.git", from: "1.0.0"),
+        .package(url: "https://github.com/soto-project/soto.git", from: "6.5.0"),
 
     ],
     targets: [
@@ -42,9 +49,11 @@ let package = Package(
                 .product(name: "Dependencies",package: "swift-dependencies"),
                 .product(name: "AsyncHTTPClient", package: "async-http-client"),
                 .product(name: "HummingbirdLambda",package: "hummingbird-lambda"),
+                .product(name: "JWTKit", package: "jwt-kit"),
+                .product(name: "HummingbirdAuth", package: "hummingbird-auth"),
+                .product(name: "SotoS3", package: "soto"),
 
-
-            ],
-            path: "Sources"),
+            ]),
+        
     ]
 )

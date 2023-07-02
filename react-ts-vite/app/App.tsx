@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 // import DataGridDemo from "./components/DataGridDemo";
@@ -18,6 +18,8 @@ import {
   Legend,
 } from "chart.js";
 import OrderSummary from "./components/OrderSummary";
+import EmailForm from "./components/EmailForm";
+import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
@@ -31,6 +33,37 @@ ChartJS.register(
 );
 
 export default function App() {
+  const [jwt, setJwt] = useState(null);
+  const [isLoading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const jwtValue = params.get("token");
+    axios.defaults.headers.common["Authorization"] = "Bearer " + jwtValue;
+    setJwt(jwtValue);
+  }, []);
+
+  async function touchServer() {
+    // console.log("send JWT");
+    try {
+      const response = await axios.get(
+        import.meta.env.VITE_URL + "auth/" + jwt
+      );
+      console.log("sent JWT");
+      // setChartData(response.data.list);
+      setLoading(false);
+    } catch (error) {
+      // console.log(error);
+      alert(`Error fetching data: ${error}`);
+    }
+  }
+
+  React.useEffect(() => {
+    if (jwt !== null) {
+      touchServer();
+    }
+  }, [jwt]);
+
   return (
     <>
       <AppBar component="nav" position="sticky">
@@ -41,20 +74,24 @@ export default function App() {
         </Toolbar>
       </AppBar>
 
-      <Container>
-        <Box component="main" sx={{ p: 3, maxWidth: "990px" }}>
-          <Stack spacing={6} sx={{ margin: 3 }}>
-            <OrderSummary />
-            <StoreOrdersLineGraph title="Store Orders by Week" />
+      {jwt === null || isLoading ? (
+        <EmailForm />
+      ) : (
+        <Container>
+          <Box component="main" sx={{ p: 3, maxWidth: "990px" }}>
+            <Stack spacing={6} sx={{ margin: 3 }}>
+              <OrderSummary />
+              <StoreOrdersLineGraph title="Store Orders by Week" />
 
-            <StoreOrdersBarGraph
-              title="Store Orders per Week past 4 weeks"
-              dataUrl={import.meta.env.VITE_URL + "locations2.json"}
-            />
-            {/* <DataGridDemo /> */}
-          </Stack>
-        </Box>
-      </Container>
+              <StoreOrdersBarGraph
+                title="Store Orders per Week past 4 weeks"
+                dataUrl={import.meta.env.VITE_URL + "api/locations2.json"}
+              />
+              {/* <DataGridDemo /> */}
+            </Stack>
+          </Box>
+        </Container>
+      )}
     </>
   );
 }

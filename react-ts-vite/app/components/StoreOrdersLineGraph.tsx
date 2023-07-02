@@ -18,7 +18,7 @@ const StoreOrdersLineGraph: React.FunctionComponent<
   async function fetchData() {
     try {
       const response = await axios.get(
-        import.meta.env.VITE_URL + "allLocationsOrdersByDay.json"
+        import.meta.env.VITE_URL + "api/allLocationsOrdersByDay.json"
       );
       let months = response.data.labels;
 

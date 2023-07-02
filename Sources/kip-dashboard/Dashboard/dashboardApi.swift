@@ -7,6 +7,8 @@
 
 import Foundation
 import Hummingbird
+import HummingbirdFoundation
+import HummingbirdAuth
 import JSON
 
 
@@ -55,9 +57,12 @@ extension kip_dashboard {
                                     end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 3.weeks,
                                     label: "4 Weeks Ago")]
     }
-    func configureApi(_ app: HBApplication) {
-        
-        app.router.get("/itemMetrics.json") { request -> HBResponse in
+    func configureApi(_ app: HBApplication, jwtAuthenticator: JWTAuthenticator) {
+    
+        app.router
+            .group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/itemMetrics.json") { request -> HBResponse in
             
             let d = try await ProductMetrics.productTable()
             
@@ -89,7 +94,10 @@ extension kip_dashboard {
 
         }
         
-        app.router.get("/orderSalesTrend.json") { request -> HBResponse in
+        app.router
+            .group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/orderSalesTrend.json") { request -> HBResponse in
             let d = try await ProductMetrics.orderData()
 //            print(d.aggregations.orders.buckets)
             print(d.Dates)
@@ -168,7 +176,10 @@ extension kip_dashboard {
                                   body: .data( bothWays.toData()))
         }
         
-        app.router.get("/locations2.json") { request -> HBResponse in
+        app.router
+            .group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/locations2.json") { request -> HBResponse in
             
             let stores = Configuration.locations(ordered: true)
             let ranges = try ranges().reversed()
@@ -205,7 +216,9 @@ extension kip_dashboard {
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( convertedBody.toData()))
         }
         
-        app.router.get("/locations.json") { request -> HBResponse in
+        app.router.group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/locations.json") { request -> HBResponse in
             
             let body = Configuration.locations()
             let data = try await body.asyncMap({ loc -> JSON in
@@ -251,7 +264,10 @@ extension kip_dashboard {
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( convertedBody.toData()))
         }
         
-        app.router.get("allLocationsOrdersByDay.json") { request -> HBResponse in
+        app.router
+            .group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("allLocationsOrdersByDay.json") { request -> HBResponse in
             
             let date = try (Date() - 120.days).moveToDayOfWeek(.monday, direction: .backward).unwrapped()
             let r = try await OpenSearchMetrics.ordersByDay(
@@ -282,18 +298,25 @@ extension kip_dashboard {
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( combined.toData()))
         }
         
-        app.router.get("/orders.json") { request -> HBResponse in
+        app.router.group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/orders.json") { request -> HBResponse in
             let body = try await OpenSearchMetrics.items(Context(), locationId: "LCHVDQS909GPQ", startDate: Date() - 1.days, endDate: Date() )
             
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.toData()))
         }
         
-        app.router.get("/ordersByDay.json") { request -> HBResponse in
+        app.router
+            .group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/ordersByDay.json") { request -> HBResponse in
             let body = try await OpenSearchMetrics.ordersByDay( startDate: Date() - 10.days, endDate: Date() )
             
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.toData()))
         }
-        app.router.get("/items.json") { request -> HBResponse in
+        app.router.group("api")
+            .add(middleware: jwtAuthenticator)
+            .get("/items.json") { request -> HBResponse in
             let body = try await OpenSearchMetrics.dataPrepForML( startDate: Date() - 20.days, endDate: Date()  - 15.days )
             
             return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data( body.toData()))

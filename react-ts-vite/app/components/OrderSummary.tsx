@@ -15,7 +15,7 @@ export default function OrderSummary() {
     //console.log(import.meta.env.VITE_URL);
     try {
       const response = await axios.get(
-        import.meta.env.VITE_URL + "orderSalesTrend.json"
+        import.meta.env.VITE_URL + "api/orderSalesTrend.json"
       );
       setMetricData(response.data.grouped);
       // setChartData(response.data.list);

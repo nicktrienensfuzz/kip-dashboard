@@ -10,14 +10,18 @@ struct Configuration {
     let openSearchEndpoint: String
     let openSearchUsername: String
     let openSearchPassword: String
-    
+    let sendGridAPIKey: String
+    let jwtSecret: String
+    let deployedUrl: String
     init() {
         let path = Path.current + Path("dev.env")
         let vars = try? DotEnv.parseEnvironment(contents: path.read())
         openSearchEndpoint = vars?["openSearchEndpoint"] ?? Lambda.env("openSearchEndpoint") ?? ""
         openSearchUsername = vars?["openSearchUsername"] ?? Lambda.env("openSearchUsername") ?? ""
         openSearchPassword = vars?["openSearchPassword"] ?? Lambda.env("openSearchPassword") ?? ""
-        
+        sendGridAPIKey = vars?["SEND_GRID_API_KEY"] ?? Lambda.env("SEND_GRID_API_KEY") ?? ""
+        jwtSecret = vars?["JWT_SECRET"] ?? Lambda.env("JWT_SECRET") ?? ""
+        deployedUrl = vars?["DEPLOYED_URL"] ?? Lambda.env("DEPLOYED_URL") ?? ""
     }
 }
 

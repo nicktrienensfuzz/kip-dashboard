@@ -10,7 +10,7 @@ import Hummingbird
 
 extension kip_dashboard {
     
-    func configure(_ app: HBApplication) {
+    func configure(_ app: HBApplication, jwtAuthenticator: JWTAuthenticator) {
         
         app.router.get("/test") { request -> HBResponse in
             let body = HTML()
