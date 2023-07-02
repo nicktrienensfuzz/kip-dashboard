@@ -45,7 +45,7 @@ const OutlinedHistoryCard: React.FunctionComponent<
     },
   };
 
-  var value = object.data[object.data.length - 1];
+  var value = "" + object.data[object.data.length - 1];
   if (object.displayName === "Sales") {
     const formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -53,6 +53,11 @@ const OutlinedHistoryCard: React.FunctionComponent<
       maximumFractionDigits: 0,
     });
     value = formatter.format(object.data[object.data.length - 1]);
+  } else if (
+    object.displayName === "Placed To Completion" ||
+    object.displayName === "Modifier Count"
+  ) {
+    value = object.data[object.data.length - 1].toFixed(2);
   }
 
   return (

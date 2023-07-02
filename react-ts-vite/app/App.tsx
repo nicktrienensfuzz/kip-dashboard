@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 
-import DataGridDemo from "./components/DataGridDemo";
+// import DataGridDemo from "./components/DataGridDemo";
 import StoreOrdersBarGraph from "./components/StoreOrdersBarGraph";
 import StoreOrdersLineGraph from "./components/StoreOrdersLineGraph";
 import { Box, Typography, Stack, AppBar, Toolbar } from "@mui/material";
@@ -49,9 +49,9 @@ export default function App() {
 
             <StoreOrdersBarGraph
               title="Store Orders per Week past 4 weeks"
-              dataUrl="http://127.0.0.1:8080/locations2.json"
+              dataUrl={import.meta.env.VITE_URL + "locations2.json"}
             />
-            <DataGridDemo />
+            {/* <DataGridDemo /> */}
           </Stack>
         </Box>
       </Container>

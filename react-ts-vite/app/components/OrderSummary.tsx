@@ -12,11 +12,10 @@ export default function OrderSummary() {
 
   // This function will be only called once
   async function fetchData() {
-    console.log(import.meta.env.VITE_URL);
-
+    //console.log(import.meta.env.VITE_URL);
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8080/orderSalesTrend.json"
+        import.meta.env.VITE_URL + "orderSalesTrend.json"
       );
       setMetricData(response.data.grouped);
       // setChartData(response.data.list);
@@ -36,10 +35,10 @@ export default function OrderSummary() {
         <div>Loading...</div>
       ) : (
         <Stack>
-           <Typography variant="h4" gutterBottom>
+          <Typography variant="h4" gutterBottom>
             Overview
           </Typography>
-          <Stack direction="row" spacing={2} >
+          <Stack direction="row" spacing={2}>
             <OutlinedHistoryCard object={metricData[0]} />
             <OutlinedHistoryCard object={metricData[2]} />
             <OutlinedHistoryCard object={metricData[4]} />
@@ -47,14 +46,11 @@ export default function OrderSummary() {
           <br />
           <br />
           <br />
-          <Typography variant="h5" color="text.secondary" >
-            Beta
-          </Typography>
-          <Stack direction="row" spacing={2} >
+          <Stack direction="row" spacing={2}>
             <OutlinedHistoryCard object={metricData[1]} />
             <OutlinedHistoryCard object={metricData[3]} />
             <OutlinedCard title="Item make time" value="4:05 m" />
-            <OutlinedCard title="Orders with customization" value="70%" />
+            <OutlinedCard title="Items with customization" value="70%" />
           </Stack>
         </Stack>
       )}

@@ -18,10 +18,9 @@ const StoreOrdersLineGraph: React.FunctionComponent<
   async function fetchData() {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8080/allLocationsOrdersByDay.json"
+        import.meta.env.VITE_URL + "allLocationsOrdersByDay.json"
       );
       let months = response.data.labels;
-      let dataset = response.data.stores[0].data;
 
       const datasets = response.data.stores.map((store) => {
         return {
@@ -39,7 +38,7 @@ const StoreOrdersLineGraph: React.FunctionComponent<
 
       setLoading(false);
     } catch (error) {
-      console.error(`Error fetching data: ${error}`);
+      error(`Error fetching data: ${error}`);
     }
   }
 

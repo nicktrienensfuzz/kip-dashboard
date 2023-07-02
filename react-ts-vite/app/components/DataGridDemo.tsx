@@ -43,7 +43,7 @@ export default function DataGridDemo() {
   async function fetchData() {
     try {
       const response = await axios.get(
-        "http://127.0.0.1:8080/itemMetrics.json"
+        import.meta.env.VITE_URL + "itemMetrics.json"
       );
       let months = response.data;
       setChartData(months);
@@ -69,15 +69,6 @@ export default function DataGridDemo() {
           rows={chartData}
           columns={columns}
           hideFooterPagination={true}
-          initialState={{
-            pagination: false,
-            //     paginationModel: {
-            //       pageSize: 45,
-            //     },
-            //   },
-          }}
-          // pageSizeOptions={[5]}
-          // checkboxSelection
           disableRowSelectionOnClick
         />
       )}
