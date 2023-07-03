@@ -34,6 +34,9 @@ provider:
     ENTRYPOINT_URL: https://mogzv5pkef.execute-api.us-west-2.amazonaws.com/dev
     AWS_ACCESS_KEY_ID1: ${env:AWS_ACCESS_KEY_ID}
     AWS_SECRET_ACCESS_KEY1: ${env:AWS_SECRET_ACCESS_KEY}
+    DEPLOYED_URL: ${env:DEPLOYED_URL}
+    JWT_SECRET: ${env:JWT_SECRET}
+    SEND_GRID_API_KEY: ${env:SEND_GRID_API_KEY}
     
   iam:
     role:

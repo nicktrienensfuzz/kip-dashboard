@@ -11,31 +11,6 @@ import HummingbirdFoundation
 import HummingbirdAuth
 import JSON
 
-
-class ColorAssigner {
-    var colors: [String]
-    init() {
-        
-        let colorString = """
-'rgba(255, 205, 86, 0.40)'
-'rgba(255, 205, 86, 0.600)'
-'rgba(255, 205, 86, 0.80)'
-'rgba(255, 205, 86, 1)'
-'rgba(75, 192, 192, 1)'
-'rgba(54, 162, 235)'
-'rgba(153, 102, 255)'
-'rgba(201, 203, 207)'
-"""
-        colors = colorString.split(separator: "\n").map{ String($0) }
-    }
-    func take() -> String {
-        //print(colors)
-        let color = colors.removeFirst()
-        //print(colors)
-        return color
-    }
-}
-
 extension kip_dashboard {
     struct DataRange {
         let start: Date
@@ -100,17 +75,17 @@ extension kip_dashboard {
             .get("/orderSalesTrend.json") { request -> HBResponse in
             let d = try await ProductMetrics.orderData()
 //            print(d.aggregations.orders.buckets)
-            print(d.Dates)
+            //print(d.Dates)
 
             let numberFormatter = NumberFormatter()
             numberFormatter.numberStyle = .currency
             numberFormatter.currencyCode = "USD"
             
-            print((d.aggregations.orders.buckets.array ?? []).count)
+           // print((d.aggregations.orders.buckets.array ?? []).count)
             var array: [JSON] = (d.aggregations.orders.buckets.array ?? [])
             array.removeLast()
             array.removeFirst()
-            print(array.count)
+           // print(array.count)
             let convertedBody = array.map{ product -> JSON in
                 var productJ = JSON()
                 productJ["id"] = JSON(UUID().uuidString)
