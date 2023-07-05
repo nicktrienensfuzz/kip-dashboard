@@ -34,10 +34,24 @@ extension kip_dashboard {
             guard let requestJson = try? request.decode(as: JSON.self) else {
                 throw HBHTTPError(.badRequest)
             }
+            let emailList: [EmailAccessControl] = [.domain("@monstar-lab"), .domain("@genieology.com")]
             
-            let host = try requestJson.host.string.unwrapped() // request.headers.first(name: "Host") ?? ""
-            print(host)
-            try await SendGridClient().sendEmail( email: requestJson.email.string.unwrapped(),
+            guard let email = requestJson.email.string else {
+                throw HBHTTPError(.badRequest)
+            }
+            
+            if !emailList.emailAllowed(email) {
+                return try HBResponse(status: .badRequest,
+                                      headers: .init([("contentType", "application/json")]),
+                                      body: .data(
+                                        json{["success":0,
+                                              "reason": "email not allowed"]}.toData()))
+                
+            }
+            
+            let host = try requestJson.host.string.unwrapped()
+            
+            try await SendGridClient().sendEmail( email: email,
                                             host: host,
                                             jwtAuthenticator: jwtAuthenticator)
             

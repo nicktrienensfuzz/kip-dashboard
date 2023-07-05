@@ -20,6 +20,13 @@ import {
 import OrderSummary from "./components/OrderSummary";
 import EmailForm from "./components/EmailForm";
 import axios from "axios";
+import ItemForm from "./components/form/ItemForm";
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+} from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -43,26 +50,35 @@ export default function App() {
     setJwt(jwtValue);
   }, []);
 
-  async function touchServer() {
-    // console.log("send JWT");
-    try {
-      const response = await axios.get(
-        import.meta.env.VITE_URL + "auth/" + jwt
-      );
-      console.log("sent JWT");
-      // setChartData(response.data.list);
-      setLoading(false);
-    } catch (error) {
-      // console.log(error);
-      alert(`Error fetching data: ${error}`);
-    }
-  }
-
   React.useEffect(() => {
+    async function touchServer() {
+      // console.log("send JWT");
+      try {
+        const response = await axios.get(
+          import.meta.env.VITE_URL + "auth/" + jwt
+        );
+        console.log("sent JWT");
+        // setChartData(response.data.list);
+        setLoading(false);
+      } catch (error) {
+        // console.log(error);
+        alert(`Error fetching data: ${error}`);
+      }
+    }
+
     if (jwt !== null) {
       touchServer();
     }
   }, [jwt]);
+
+  const router = createBrowserRouter(
+    createRoutesFromElements(
+      <Route path="/" element={<ItemForm />} >
+        <Route path="/graph" index element={<StoreOrdersLineGraph />} />
+        <Route path="/prd" index element={<ItemForm />} />
+      </Route>      
+    )
+  );
 
   return (
     <>
@@ -73,6 +89,7 @@ export default function App() {
           </Typography>
         </Toolbar>
       </AppBar>
+      <RouterProvider router={router} />
 
       {jwt === null || isLoading ? (
         <EmailForm />

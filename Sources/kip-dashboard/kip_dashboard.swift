@@ -29,10 +29,11 @@ struct kip_dashboard: HBLambda {
     typealias Output = APIGatewayResponse
     
     init(_ app: HBApplication) {
+        
         app.middleware.add(HBLogRequestsMiddleware(.debug))
         
         //        app.middleware.add(HBFileMiddleware((Path.current + Path("public")).string, searchForIndexHtml: true, application: app))
-        //        app.middleware.add(HBCORSMiddleware(allowOrigin: .all))
+        app.middleware.add(HBCORSMiddleware(allowOrigin: .all))
         
         app.addPersist(using: .memory)
         @Dependency(\.configuration) var configuration

@@ -16,7 +16,7 @@ class SendGridClient {
         @Dependency(\.configuration) var configuration
         
         let responderHost = host ?? configuration.deployedUrl
-        let url = try await "\(responderHost)/index.html?token=\(jwtAuthenticator.create(email: email))"
+        let url = try await "\(responderHost)?token=\(jwtAuthenticator.create(email: email))"
         print(url.jsonEncodedString())
         let body = """
 {

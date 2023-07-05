@@ -1,4 +1,5 @@
 cd react-ts-vite && npm run build
+cd ..
 aws s3 sync public  s3://zendat --profile fuzztival
 
 
