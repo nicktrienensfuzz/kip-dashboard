@@ -73,10 +73,10 @@ export default function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<ItemForm />} >
+      <Route path="/" element={<ItemForm />}>
         <Route path="/graph" index element={<StoreOrdersLineGraph />} />
         <Route path="/prd" index element={<ItemForm />} />
-      </Route>      
+      </Route>
     )
   );
 
@@ -89,7 +89,7 @@ export default function App() {
           </Typography>
         </Toolbar>
       </AppBar>
-      <RouterProvider router={router} />
+      {/* <RouterProvider router={router} /> */}
 
       {jwt === null || isLoading ? (
         <EmailForm />

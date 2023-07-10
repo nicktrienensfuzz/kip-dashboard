@@ -1,6 +1,9 @@
+
 cd react-ts-vite && npm run build
 cd ..
-aws s3 sync public  s3://zendat --profile fuzztival
+aws s3 sync public s3://zendat --profile fuzztival
+aws s3 sync public s3://zendat/kpiDashboard --profile fuzztival
+
 
 
 make archive_lambda

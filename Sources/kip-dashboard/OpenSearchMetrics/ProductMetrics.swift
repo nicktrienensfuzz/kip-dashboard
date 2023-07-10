@@ -129,6 +129,119 @@ struct ProductMetrics {
         return result
     }
     
+    static func itemData() async throws -> JSON {
+        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
+        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
+       
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*-lineitems-prod"
+        let query = """
+{
+  "aggs": {
+    "orders": {
+      "date_histogram": {
+        "field": "placedAt",
+        "calendar_interval": "1w",
+        "time_zone": "America/Los_Angeles",
+        "min_doc_count": 1
+      },
+      "aggs": {
+        "claimedToCompletion": {
+          "avg": {
+            "field": "claimedToCompletion"
+          }
+        },
+        "placedToCompletion": {
+          "avg": {
+            "field": "placedToCompletion"
+          }
+        },
+        "modifierCount": {
+          "avg": {
+            "field": "modifierCount"
+          }
+        }
+      }
+    }
+  },
+  "size": 0,
+  "stored_fields": [
+    "*"
+  ],
+  "script_fields": {},
+  "docvalue_fields": [
+    {
+      "field": "canceledAt",
+      "format": "date_time"
+    },
+    {
+      "field": "completedAt",
+      "format": "date_time"
+    },
+    {
+      "field": "inProgressAt",
+      "format": "date_time"
+    },
+    {
+      "field": "orderSessionStartedAt",
+      "format": "date_time"
+    },
+    {
+      "field": "placedAt",
+      "format": "date_time"
+    },
+    {
+      "field": "placedAtPacificDate",
+      "format": "date_time"
+    },
+    {
+      "field": "recalledAt",
+      "format": "date_time"
+    }
+  ],
+  "_source": {
+    "excludes": []
+  },
+  "query": {
+    "bool": {
+      "must": [],
+      "filter": [
+        {
+          "match_all": {}
+        },
+        {
+          "match_phrase": {
+            "state": "completed"
+          }
+        },
+        {
+          "range": {
+            "placedAt": {
+              "gte": "\(dateFormatter.string(from: startDate))",
+              "lte": "\(dateFormatter.string(from: endDate))",
+              "format": "strict_date_optional_time"
+            }
+          }
+        }
+      ],
+      "should": [],
+      "must_not": []
+    }
+  }
+}
+"""
+        var result =  try await makeRequest(query: query, index: index)
+        result["Dates"] = json {
+            [
+            "startDate": "\(dateFormatter.string(from: startDate))",
+            "endDate": "\(dateFormatter.string(from: endDate))"
+            ]
+            }
+        return result
+    }
+    
     static func productTable() async throws -> JSON {
         let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay

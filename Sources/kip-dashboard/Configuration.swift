@@ -13,6 +13,10 @@ struct Configuration {
     let sendGridAPIKey: String
     let jwtSecret: String
     let deployedUrl: String
+    
+    let accessKeyId:String
+    let secretAccessKey:String
+    
     init() {
         let path = Path.current + Path("dev.env")
         let vars = try? DotEnv.parseEnvironment(contents: path.read())
@@ -22,6 +26,9 @@ struct Configuration {
         sendGridAPIKey = vars?["SEND_GRID_API_KEY"] ?? Lambda.env("SEND_GRID_API_KEY") ?? ""
         jwtSecret = vars?["JWT_SECRET"] ?? Lambda.env("JWT_SECRET") ?? ""
         deployedUrl = vars?["DEPLOYED_URL"] ?? Lambda.env("DEPLOYED_URL") ?? ""
+        
+        accessKeyId = vars?["AWS_ACCESS_KEY_ID"] ?? Lambda.env("AWS_ACCESS_KEY_ID1") ?? ""
+        secretAccessKey = vars?["AWS_SECRET_ACCESS_KEY"] ?? Lambda.env("AWS_SECRET_ACCESS_KEY1") ?? ""
     }
 }
 

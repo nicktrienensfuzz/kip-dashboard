@@ -18,6 +18,91 @@ extension kip_dashboard {
         let label: String
     }
     
+    func addRoutes(to app: HBApplication, jwtAuthenticator: JWTAuthenticator) {
+
+        app.router
+            .group("api")
+           // .add(middleware: jwtAuthenticator)
+            .get("/itemSalesTrend.json", use: self.ItemTrends )
+    }
+    
+    func ItemTrends(request: HBRequest) async throws -> HBResponse {
+            let d = try await ProductMetrics.itemData()
+//            print(d.aggregations.orders.buckets)
+            print(d)
+
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = .currency
+            numberFormatter.currencyCode = "USD"
+            
+           // print((d.aggregations.orders.buckets.array ?? []).count)
+            var array: [JSON] = (d.aggregations.orders.buckets.array ?? [])
+            array.removeLast()
+            array.removeFirst()
+           // print(array.count)
+            let convertedBody = array.map{ product -> JSON in
+                print(product)
+                var productJ = JSON()
+                productJ["id"] = JSON(UUID().uuidString)
+                productJ["name"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd"))
+                productJ["date"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0 )/1000)).formatted("M/dd/yyyy"))
+                productJ["itemCount"] = product.itemCount.value
+                productJ["placedToCompletion"] = product.placedToCompletion.value
+                print(product.claimedToCompletion)
+                productJ["claimedToCompletion"] = product.claimedToCompletion.value
+                productJ["modifierCount"] = product.modifierCount.value
+             
+                return productJ
+            }
+            
+            class Metric: Codable, CustomDebugStringConvertible {
+                init(name: String,displayName: String = "", labels: [JSON] = [], data: [JSON] = []) {
+                    self.name = name
+                    self.displayName = displayName
+                    self.labels = labels
+                    self.data = data
+                }
+                
+                var name: String
+                var displayName: String
+                var labels: [JSON]
+                var data: [JSON]
+                
+                    var debugDescription: String {
+                        return "Metric: \(name)\nLabels: \(labels)\nData: \(data)"
+                    }
+            }
+
+            var mappings = [String: Metric]()
+            convertedBody.forEach { json in
+                let keys = [ "placedToCompletion", "modifierCount", "claimedToCompletion"]
+                keys.forEach { key in
+                    let name = key //json.name.string ?? "unknown"
+                    let item = mappings[key] ?? Metric(name: name)
+                    item.displayName = key.trainCaseToTitleCase()
+                    item.labels.append(json.name)
+                    item.data.append(json[key])
+                    mappings[key] = item
+                }
+            }
+            print(mappings)
+            let group = try mappings.values
+                .sorted(by: { a, b in
+                    a.displayName < b.displayName
+                })
+                .reversed()
+                .map({ try $0.json() })
+            
+            let bothWays = json { [
+                "list": convertedBody,
+                "grouped": group
+            ]}
+            return try HBResponse(status: .ok,
+                                  headers: .init([("contentType", "application/json")]),
+                                  body: .data( bothWays.toData()))
+    
+    }
+    
     func ranges() throws -> [DataRange] {
         return try [DataRange(start: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 1.weeks,
                                     end: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped() - 0.weeks,
@@ -68,6 +153,8 @@ extension kip_dashboard {
                                   body: .data( convertedBody.toData()))
 
         }
+        
+        
         
         app.router
             .group("api")
@@ -244,10 +331,10 @@ extension kip_dashboard {
             .add(middleware: jwtAuthenticator)
             .get("allLocationsOrdersByDay.json") { request -> HBResponse in
             
-            let date = try (Date() - 120.days).moveToDayOfWeek(.monday, direction: .backward).unwrapped()
+            let date = try (Date() - 120.days).moveToDayOfWeek(.sunday, direction: .backward).unwrapped()
             let r = try await OpenSearchMetrics.ordersByDay(
                 startDate: date.rawStartOfDay,
-                endDate: Date().moveToDayOfWeek(.monday, direction: .backward).unwrapped().rawStartOfDay )
+                endDate: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay )
             
             var labels = r.map(\.dateValue).deduplicatedWithOrder()
             let remove = labels.first!

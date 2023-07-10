@@ -299,6 +299,7 @@ class OpenSearchMetrics {
     //                } ?? []
     //                return compiledOutages
     //    }
+    
     private static func menuOutagesRawActive(_ context: AnyContext, startDate: Date, endDate: Date) async throws -> [MenuOutage] {
         
         let dateFormatter = DateFormatter()
