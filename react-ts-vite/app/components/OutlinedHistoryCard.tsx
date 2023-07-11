@@ -44,8 +44,14 @@ const OutlinedHistoryCard: React.FunctionComponent<
       },
     },
   };
-
-  var value = "" + object.data[object.data.length - 1];
+  var value = "";
+  if (object.data) {
+    value = "" + object.data[object.data.length - 1];
+  } else {
+    console.log(object.displayName, value);
+  }
+  
+  
   if (object.displayName === "Sales") {
     const formatter = new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -55,7 +61,10 @@ const OutlinedHistoryCard: React.FunctionComponent<
     value = formatter.format(object.data[object.data.length - 1]);
   } else if (
     object.displayName === "Placed To Completion" ||
-    object.displayName === "Modifier Count"
+    object.displayName === "Modifier Count" ||
+    object.displayName === "% of Items Modified" ||
+    object.displayName === "Claimed To Completion" ||
+    object.displayName === "Avg Item Count"
   ) {
     value = object.data[object.data.length - 1].toFixed(2);
   }

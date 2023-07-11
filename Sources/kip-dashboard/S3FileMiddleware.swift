@@ -24,9 +24,9 @@ public class S3FileMiddleware: HBMiddleware {
         self.folder = folder
         self.files = files
         self.s3 = s3
-        Task {
-            try await fetchFiles()
-        }
+//        Task {
+//            try await fetchFiles()
+//        }
     }
     
     public func apply(to request: Hummingbird.HBRequest, next: Hummingbird.HBResponder) -> NIOCore.EventLoopFuture<Hummingbird.HBResponse> {
@@ -37,11 +37,11 @@ public class S3FileMiddleware: HBMiddleware {
         if path == "/" {
             path = "index.html"
         }
-//        Task {
-//            try await fetchFiles()
-//        }
+
         return next.respond(to: request)
             .flatMapError { error in
+                dump(error)
+                print(error)
             switch request.method {
             case .GET:
                 

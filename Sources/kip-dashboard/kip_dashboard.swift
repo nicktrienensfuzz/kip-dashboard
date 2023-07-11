@@ -113,7 +113,6 @@ struct kip_dashboard: AsyncParsableCommand {
 
         let app = HBApplication(configuration: .init(address: .hostname(hostname, port: port)))
         app.middleware.add(HBLogRequestsMiddleware(.debug))
-//        app.middleware.add(HBFileMiddleware((Path.current + Path("public/")).string, searchForIndexHtml: true, application: app))
         app.middleware.add(HBCORSMiddleware(allowOrigin: .all))
         app.addPersist(using: .memory)
         app.configureS3()
