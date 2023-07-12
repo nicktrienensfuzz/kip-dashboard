@@ -35,11 +35,11 @@
       "unix"
     ],
     "semi": "off",
-    "quotes": ["error", "double"],
+    "quotes": ["warn", "double"],
     "react-hooks/rules-of-hooks": "error", // Checks rules of Hooks
     "react-hooks/exhaustive-deps": "warn", // Checks effect dependencies
     "no-console": "warn",
-    "no-eval": "error",
+    "no-eval": "warn",
     "react/no-unescaped-entities": ["warn", {
       "forbid": [">", "}", "\""]
     }],

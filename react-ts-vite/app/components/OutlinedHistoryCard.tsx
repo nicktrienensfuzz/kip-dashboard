@@ -50,8 +50,7 @@ const OutlinedHistoryCard: React.FunctionComponent<
   } else {
     console.log(object.displayName, value);
   }
-  
-  
+
   if (object.displayName === "Sales") {
     const formatter = new Intl.NumberFormat("en-US", {
       style: "currency",

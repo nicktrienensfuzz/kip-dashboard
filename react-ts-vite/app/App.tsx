@@ -95,7 +95,7 @@ export default function App() {
         <EmailForm />
       ) : (
         <Container>
-          <Box component="main" sx={{ p: 3, maxWidth: "990px" }}>
+          <Box component="main" sx={{ p: 3, maxWidth: "1100px" }}>
             <Stack spacing={6} sx={{ margin: 3 }}>
               <OrderSummary />
               <StoreOrdersLineGraph title="Store Orders by Week" />
