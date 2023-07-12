@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Nicholas Trienens on 7/2/23.
 //
@@ -12,4 +12,3 @@ public extension String {
         URL(string: self)
     }
 }
-

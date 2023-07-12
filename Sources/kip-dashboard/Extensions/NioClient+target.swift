@@ -11,7 +11,7 @@ import NIO
 import NIOFoundationCompat
 import NIOHTTP1
 
-//public class Endpoint: EndpointRequest {
+// public class Endpoint: EndpointRequest {
 //    public let method: NIOHTTP1.HTTPMethod
 //    public let path: String
 //    public var headers: [String: String]?
@@ -28,18 +28,18 @@ import NIOHTTP1
 //        self.body = body
 //        self.headers = headers
 //    }
-//}
+// }
 //
-//public protocol EndpointRequest {
+// public protocol EndpointRequest {
 //    var method: NIOHTTP1.HTTPMethod { get }
 //    var path: String { get }
 //    var headers: [String: String]? { get }
 //    var body: Data? { get }
 //
 //    func cURLRepresentation() -> String
-//}
+// }
 //
-//public extension EndpointRequest {
+// public extension EndpointRequest {
 //    func cURLRepresentation() -> String {
 //        var components = ["curl"]
 //
@@ -63,7 +63,7 @@ import NIOHTTP1
 //        components.append("\"\(path)\"")
 //        return components.joined(separator: " ")
 //    }
-//}
+// }
 
 public extension HTTPClient {
     func request(_ target: EndpointRequest, baseURLString _: String = "", printCurl: Bool = false) throws -> EventLoopFuture<HTTPClient.Response> {

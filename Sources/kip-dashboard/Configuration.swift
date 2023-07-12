@@ -1,10 +1,10 @@
-import PathKit
-import Dependencies
+import AsyncHTTPClient
 import AWSLambdaRuntime
+import Dependencies
+import Foundation
 import Hummingbird
 import HummingbirdFoundation
-import AsyncHTTPClient
-import Foundation
+import PathKit
 
 struct Configuration {
     let openSearchEndpoint: String
@@ -13,10 +13,10 @@ struct Configuration {
     let sendGridAPIKey: String
     let jwtSecret: String
     let deployedUrl: String
-    
-    let accessKeyId:String
-    let secretAccessKey:String
-    
+
+    let accessKeyId: String
+    let secretAccessKey: String
+
     init() {
         let path = Path.current + Path("dev.env")
         let vars = try? DotEnv.parseEnvironment(contents: path.read())
@@ -26,16 +26,14 @@ struct Configuration {
         sendGridAPIKey = vars?["SEND_GRID_API_KEY"] ?? Lambda.env("SEND_GRID_API_KEY") ?? ""
         jwtSecret = vars?["JWT_SECRET"] ?? Lambda.env("JWT_SECRET") ?? ""
         deployedUrl = vars?["DEPLOYED_URL"] ?? Lambda.env("DEPLOYED_URL") ?? ""
-        
+
         accessKeyId = vars?["AWS_ACCESS_KEY_ID"] ?? Lambda.env("AWS_ACCESS_KEY_ID1") ?? ""
         secretAccessKey = vars?["AWS_SECRET_ACCESS_KEY"] ?? Lambda.env("AWS_SECRET_ACCESS_KEY1") ?? ""
     }
 }
 
 private enum ConfigurationKey: DependencyKey {
-    static let liveValue: Configuration = {
-        Configuration()
-    }()
+    static let liveValue: Configuration = Configuration()
 }
 
 extension DependencyValues {
@@ -56,11 +54,9 @@ private enum HTTPClientKey: DependencyKey {
             configuration: HTTPClient.Configuration(timeout: timeout)
         )
         return httpClient
-        
+
     }()
 }
-
-
 
 extension DependencyValues {
     var httpClient: HTTPClient {
@@ -74,11 +70,11 @@ extension HBResponseBody {
         var byteBuffer = ByteBuffer()
         byteBuffer.writeBytes(data)
         return HBResponseBody.byteBuffer(byteBuffer)
-        
     }
+
     static func data(_ string: String) -> HBResponseBody {
         var byteBuffer = ByteBuffer()
-        byteBuffer.writeBytes( string.data(using: .utf8)!)
-        return  HBResponseBody.byteBuffer(byteBuffer)
+        byteBuffer.writeBytes(string.data(using: .utf8)!)
+        return HBResponseBody.byteBuffer(byteBuffer)
     }
 }

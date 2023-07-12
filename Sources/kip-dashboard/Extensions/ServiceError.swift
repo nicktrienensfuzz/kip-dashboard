@@ -167,12 +167,12 @@ extension HTTPResponseStatus: Equatable {
 extension HTTPResponseStatus: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
-        self.code = try container.decode(UInt.self)
-        self.reasonPhrase = nil
+        code = try container.decode(UInt.self)
+        reasonPhrase = nil
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
-        try container.encode(self.code)
+        try container.encode(code)
     }
 }

@@ -1,10 +1,9 @@
 import Foundation
 
-
 extension MenuOutage {
     var colorCode: String {
         if let lastedForSeconds {
-            if lastedForSeconds  > 3600 * 12 {
+            if lastedForSeconds > 3600 * 12 {
                 return "#FFDAD4"
             }
             if lastedForSeconds > 3600 * 3 {
@@ -15,28 +14,29 @@ extension MenuOutage {
         return "#D5F6FF"
     }
 }
+
 // MARK: - Input
 /*
-public struct MenuOutage:  Equatable, Codable {
-    public let active: Bool
-    public let createdAt: Date
-    public let endedAt: Date? = nil
-    public let id: String
-    public let lastedForHuman: String? = nil
-    public let lastedForSeconds: Int? = nil
-    public let locationID: String
-    public let modifierIDS: [String]
-    public let needsConfirmation: Bool
-    public let needsConfirmationAt: Date? = nil
-    public let objectID: String
-    public let outageBeganInSquare: Bool
-    public let outageSetInSquare: Bool
-    public let state: String
-    public let title: String
-    public let type: String
-    public let parentOOS: String? = nil
-}
-*/
+ public struct MenuOutage:  Equatable, Codable {
+     public let active: Bool
+     public let createdAt: Date
+     public let endedAt: Date? = nil
+     public let id: String
+     public let lastedForHuman: String? = nil
+     public let lastedForSeconds: Int? = nil
+     public let locationID: String
+     public let modifierIDS: [String]
+     public let needsConfirmation: Bool
+     public let needsConfirmationAt: Date? = nil
+     public let objectID: String
+     public let outageBeganInSquare: Bool
+     public let outageSetInSquare: Bool
+     public let state: String
+     public let title: String
+     public let type: String
+     public let parentOOS: String? = nil
+ }
+ */
 // MARK: - EndInput
 
 public struct MenuOutage: Equatable, Hashable, Codable {
@@ -76,7 +76,7 @@ public struct MenuOutage: Equatable, Hashable, Codable {
         title: String,
         type: String,
         parentOOS: String? = nil
-    ){
+    ) {
         self.active = active
         self.createdAt = createdAt
         self.endedAt = endedAt
@@ -97,23 +97,23 @@ public struct MenuOutage: Equatable, Hashable, Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case active = "active"
-        case createdAt = "createdAt"
-        case endedAt = "endedAt"
-        case id = "id"
-        case lastedForHuman = "lastedForHuman"
-        case lastedForSeconds = "lastedForSeconds"
+        case active
+        case createdAt
+        case endedAt
+        case id
+        case lastedForHuman
+        case lastedForSeconds
         case locationID = "locationId"
         case modifierIDS = "modifierIds"
-        case needsConfirmation = "needsConfirmation"
-        case needsConfirmationAt = "needsConfirmationAt"
+        case needsConfirmation
+        case needsConfirmationAt
         case objectID = "objectId"
-        case outageBeganInSquare = "outageBeganInSquare"
-        case outageSetInSquare = "outageSetInSquare"
-        case state = "state"
-        case title = "title"
-        case type = "type"
-        case parentOOS = "parentOOS"
+        case outageBeganInSquare
+        case outageSetInSquare
+        case state
+        case title
+        case type
+        case parentOOS
     }
 
     public init(from decoder: Decoder) throws {
@@ -173,45 +173,46 @@ public struct MenuOutage: Equatable, Hashable, Codable {
     }
 
     public func toSwift() -> String {
-            """
-            MenuOutage(
-                active: \(active),
-                createdAt:  Date(timeIntervalSince1970: \(createdAt.timeIntervalSince1970)),
-                endedAt:  \(endedAt != nil ? "Date(timeIntervalSince1970: \(endedAt!.timeIntervalSince1970))" : "nil"),
-                id: "\(id)",
-                lastedForHuman: \(lastedForHuman != nil ? "\"\(lastedForHuman!)\"" : "nil"),
-                lastedForSeconds: \(lastedForSeconds != nil ? "\(lastedForSeconds!)" : "nil"),
-                locationID: "\(locationID)",
-                modifierIDS: \(modifierIDS),
-                needsConfirmation: \(needsConfirmation),
-                needsConfirmationAt:  \(needsConfirmationAt != nil ? "Date(timeIntervalSince1970: \(needsConfirmationAt!.timeIntervalSince1970))" : "nil"),
-                objectID: "\(objectID)",
-                outageBeganInSquare: \(outageBeganInSquare),
-                outageSetInSquare: \(outageSetInSquare),
-                state: "\(state)",
-                title: "\(title)",
-                type: "\(type)",
-                parentOOS: \(parentOOS != nil ? "\"\(parentOOS!)\"" : "nil")
-                )
-            """
+        """
+        MenuOutage(
+            active: \(active),
+            createdAt:  Date(timeIntervalSince1970: \(createdAt.timeIntervalSince1970)),
+            endedAt:  \(endedAt != nil ? "Date(timeIntervalSince1970: \(endedAt!.timeIntervalSince1970))" : "nil"),
+            id: "\(id)",
+            lastedForHuman: \(lastedForHuman != nil ? "\"\(lastedForHuman!)\"" : "nil"),
+            lastedForSeconds: \(lastedForSeconds != nil ? "\(lastedForSeconds!)" : "nil"),
+            locationID: "\(locationID)",
+            modifierIDS: \(modifierIDS),
+            needsConfirmation: \(needsConfirmation),
+            needsConfirmationAt:  \(needsConfirmationAt != nil ? "Date(timeIntervalSince1970: \(needsConfirmationAt!.timeIntervalSince1970))" : "nil"),
+            objectID: "\(objectID)",
+            outageBeganInSquare: \(outageBeganInSquare),
+            outageSetInSquare: \(outageSetInSquare),
+            state: "\(state)",
+            title: "\(title)",
+            type: "\(type)",
+            parentOOS: \(parentOOS != nil ? "\"\(parentOOS!)\"" : "nil")
+            )
+        """
     }
+
     public static func == (lhs: MenuOutage, rhs: MenuOutage) -> Bool {
         lhs.active == rhs.active &&
-        lhs.createdAt == rhs.createdAt &&
-        lhs.endedAt == rhs.endedAt &&
-        lhs.id == rhs.id &&
-        lhs.lastedForHuman == rhs.lastedForHuman &&
-        lhs.lastedForSeconds == rhs.lastedForSeconds &&
-        lhs.locationID == rhs.locationID &&
-        lhs.modifierIDS == rhs.modifierIDS &&
-        lhs.needsConfirmation == rhs.needsConfirmation &&
-        lhs.needsConfirmationAt == rhs.needsConfirmationAt &&
-        lhs.objectID == rhs.objectID &&
-        lhs.outageBeganInSquare == rhs.outageBeganInSquare &&
-        lhs.outageSetInSquare == rhs.outageSetInSquare &&
-        lhs.state == rhs.state &&
-        lhs.title == rhs.title &&
-        lhs.type == rhs.type &&
-        lhs.parentOOS == rhs.parentOOS
+            lhs.createdAt == rhs.createdAt &&
+            lhs.endedAt == rhs.endedAt &&
+            lhs.id == rhs.id &&
+            lhs.lastedForHuman == rhs.lastedForHuman &&
+            lhs.lastedForSeconds == rhs.lastedForSeconds &&
+            lhs.locationID == rhs.locationID &&
+            lhs.modifierIDS == rhs.modifierIDS &&
+            lhs.needsConfirmation == rhs.needsConfirmation &&
+            lhs.needsConfirmationAt == rhs.needsConfirmationAt &&
+            lhs.objectID == rhs.objectID &&
+            lhs.outageBeganInSquare == rhs.outageBeganInSquare &&
+            lhs.outageSetInSquare == rhs.outageSetInSquare &&
+            lhs.state == rhs.state &&
+            lhs.title == rhs.title &&
+            lhs.type == rhs.type &&
+            lhs.parentOOS == rhs.parentOOS
     }
- }
+}

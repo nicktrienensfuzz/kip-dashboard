@@ -134,13 +134,12 @@ public extension Array where Element: Hashable {
     /// - Returns: A new `Array` without duplicate elements.
     ///
     func deduplicatedWithOrder() -> Array {
-        var items = Array<Element>()
-        self.forEach { item in
+        var items = [Element]()
+        forEach { item in
             if !items.contains(item) {
                 items.append(item)
             }
         }
         return items
     }
-
 }

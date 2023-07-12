@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Nicholas Trienens on 1/17/23.
 //
@@ -9,14 +9,14 @@ import Foundation
 
 // MARK: - Input
 /*
-public struct ItemSummaryDTO: Codable {
-    public let averagePlacedToClaimed: Float
-    public let averagePlacedToCompletion: Float
-    public let averageClaimedToCompletion: Float
-    public let count: Int
-    public let itemName: String
-}
-*/
+ public struct ItemSummaryDTO: Codable {
+     public let averagePlacedToClaimed: Float
+     public let averagePlacedToCompletion: Float
+     public let averageClaimedToCompletion: Float
+     public let count: Int
+     public let itemName: String
+ }
+ */
 // MARK: - EndInput
 
 public struct ItemSummaryDTO: Codable {
@@ -32,7 +32,7 @@ public struct ItemSummaryDTO: Codable {
         averageClaimedToCompletion: Float,
         count: Int,
         itemName: String
-    ){
+    ) {
         self.averagePlacedToClaimed = averagePlacedToClaimed
         self.averagePlacedToCompletion = averagePlacedToCompletion
         self.averageClaimedToCompletion = averageClaimedToCompletion
@@ -41,11 +41,11 @@ public struct ItemSummaryDTO: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case averagePlacedToClaimed = "averagePlacedToClaimed"
-        case averagePlacedToCompletion = "averagePlacedToCompletion"
-        case averageClaimedToCompletion = "averageClaimedToCompletion"
-        case count = "count"
-        case itemName = "itemName"
+        case averagePlacedToClaimed
+        case averagePlacedToCompletion
+        case averageClaimedToCompletion
+        case count
+        case itemName
     }
 
     public init(from decoder: Decoder) throws {
@@ -67,14 +67,14 @@ public struct ItemSummaryDTO: Codable {
     }
 
     public func toSwift() -> String {
-            """
-            ItemSummaryDTO(
-                averagePlacedToClaimed: \(averagePlacedToClaimed),
-                averagePlacedToCompletion: \(averagePlacedToCompletion),
-                averageClaimedToCompletion: \(averageClaimedToCompletion),
-                count: \(count),
-                itemName: "\(itemName)"
-                )
-            """
+        """
+        ItemSummaryDTO(
+            averagePlacedToClaimed: \(averagePlacedToClaimed),
+            averagePlacedToCompletion: \(averagePlacedToCompletion),
+            averageClaimedToCompletion: \(averageClaimedToCompletion),
+            count: \(count),
+            itemName: "\(itemName)"
+            )
+        """
     }
- }
+}

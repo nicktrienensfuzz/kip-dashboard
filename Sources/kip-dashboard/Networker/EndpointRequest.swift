@@ -22,7 +22,7 @@ import Foundation
     }
 #endif
 #if canImport(FoundationNetworking)
-  import FoundationNetworking
+    import FoundationNetworking
 #endif
 
 public protocol EndpointRequest {
@@ -205,9 +205,10 @@ open class Endpoint: EndpointRequest {
         return completeRequest
     }
 }
+
 //
 //// typeEaraser Wrapper around Encodable
-//public struct AnyEncodable: Encodable {
+// public struct AnyEncodable: Encodable {
 //    public let encodable: Encodable
 //
 //    public init(_ encodable: Encodable) {
@@ -217,7 +218,7 @@ open class Endpoint: EndpointRequest {
 //    public func encode(to encoder: Encoder) throws {
 //        try encodable.encode(to: encoder)
 //    }
-//}
+// }
 
 public enum Encoding: String {
     case body

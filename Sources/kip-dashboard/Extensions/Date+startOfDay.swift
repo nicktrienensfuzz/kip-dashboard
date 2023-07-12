@@ -13,17 +13,17 @@ public extension Date {
         calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .current
         return calendar.startOfDay(for: advanced(by: -(3600 * 7)))
     }
-    
+
     var rawStartOfDay: Date {
         var calendar = Calendar.current
         calendar.timeZone = TimeZone(secondsFromGMT: 0) ?? .current
         return calendar.startOfDay(for: self)
     }
-    
-    
+
     var endOfDay: Date {
-        (rawStartOfDay + 23.hours ) + 59.minutes
+        (rawStartOfDay + 23.hours) + 59.minutes
     }
+
     var adjustedStartOfDay: TimeInterval {
         startOfDay.timeIntervalSinceReferenceDate + (3600 * 7)
     }
@@ -38,16 +38,14 @@ public extension Date {
         let difference = zone.secondsFromGMT() - TimeZone.current.secondsFromGMT()
         return advanced(by: Double(difference))
     }
-    
+
     var secondsFromStartOfDay: Int {
         let calendar = Calendar.current
         let startOfDay = calendar.startOfDay(for: self)
-        let interval = self.timeIntervalSince(startOfDay)
+        let interval = timeIntervalSince(startOfDay)
         return Int(interval)
     }
 }
-
-
 
 public extension String {
     fileprivate static let dateFormatter = DateFormatter()
@@ -62,7 +60,7 @@ public extension String {
         if let date = Self.dateFormatter.date(from: self) {
             return date
         }
-        
+
         Self.dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         if let date = Self.dateFormatter.date(from: self) {
             return date
@@ -94,7 +92,7 @@ public extension Date {
         String.dateFormatter.dateFormat = format
         return String.dateFormatter.string(from: self)
     }
-    
+
     func formattedGMT(_ format: String) -> String {
         String.dateFormatter.timeZone = TimeZone(abbreviation: "GMT")
         String.dateFormatter.dateFormat = format

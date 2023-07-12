@@ -11,7 +11,7 @@ public extension Date {
     static func formatted(duration interval: Float) -> String {
         formatted(duration: Double(interval))
     }
-    
+
     static func formatted(duration interval: TimeInterval) -> String {
         var duration = ""
         var timeInterval = abs(interval)
@@ -27,8 +27,8 @@ public extension Date {
 //                if t == 1 {
 //                    duration += String(format: "%.2fh", timeInterval / 3600)
 //                } else {
-                    duration += String(format: "%.0fh", timeInterval / 3600)
-                //}
+                duration += String(format: "%.0fh", timeInterval / 3600)
+                // }
                 timeInterval = Double(Int(timeInterval) % 3600)
             } else {
                 let roundMinutes = Int(floor(timeInterval / 60))

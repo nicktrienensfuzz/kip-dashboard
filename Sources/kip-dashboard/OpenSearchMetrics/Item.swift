@@ -1,6 +1,6 @@
 //
 //  Item.swift
-//  
+//
 //
 //  Created by Nicholas Trienens on 1/13/23.
 //
@@ -11,47 +11,49 @@ import Foundation
 
 // MARK: - Input
 /*
-struct Item: Codable {
-    let associate: ItemAssociateObject
-    let catalogId: String
-    let claimedToCompletion: Double
-    let completedAt: Date
-    let cost: Double
-    let id: String
-    let inProgressAt: Date
-    let locationId: String
-    let modifierCount: Double
-    let modifiers: [ModifiersElement]
-    let name: String
-    let nameOnKDS: String
-    let orderId: String
-    let orderSessionStartedAt: String
-    let placedAt: Date
-    let placedAtPacificDate: String
-    let placedAtPacificDayOfWeek: String
-    let placedAtPacificHour: Double
-    let placedToClaimed: Double
-    let placedToCompletion: Double
-    let rawLineItem: RawLineItemObject
-    let startSessionToCompletion: Double
-    let startSessionToPlaced: Double
-    let state: String
-    let uid: String
-}
-*/
+ struct Item: Codable {
+     let associate: ItemAssociateObject
+     let catalogId: String
+     let claimedToCompletion: Double
+     let completedAt: Date
+     let cost: Double
+     let id: String
+     let inProgressAt: Date
+     let locationId: String
+     let modifierCount: Double
+     let modifiers: [ModifiersElement]
+     let name: String
+     let nameOnKDS: String
+     let orderId: String
+     let orderSessionStartedAt: String
+     let placedAt: Date
+     let placedAtPacificDate: String
+     let placedAtPacificDayOfWeek: String
+     let placedAtPacificHour: Double
+     let placedToClaimed: Double
+     let placedToCompletion: Double
+     let rawLineItem: RawLineItemObject
+     let startSessionToCompletion: Double
+     let startSessionToPlaced: Double
+     let state: String
+     let uid: String
+ }
+ */
 // MARK: - EndInput
 
 struct Item: Codable, CustomDebugStringConvertible {
     var debugDescription: String {
         "id: \(id), placedAt: \(placedAt)"
     }
-    
+
     var placedToCompleted: DateInterval {
         DateInterval(start: placedAt, end: completedAt)
     }
+
     var claimedToCompleted: DateInterval {
         DateInterval(start: inProgressAt, end: completedAt)
     }
+
     let associate: ItemAssociateObject
     let catalogId: String
     let claimedToCompletion: Double
@@ -104,7 +106,7 @@ struct Item: Codable, CustomDebugStringConvertible {
         startSessionToPlaced: Double?,
         state: String,
         uid: String
-    ){
+    ) {
         self.associate = associate
         self.catalogId = catalogId
         self.claimedToCompletion = claimedToCompletion
@@ -133,31 +135,31 @@ struct Item: Codable, CustomDebugStringConvertible {
     }
 
     enum CodingKeys: String, CodingKey {
-        case associate = "associate"
-        case catalogId = "catalogId"
-        case claimedToCompletion = "claimedToCompletion"
-        case completedAt = "completedAt"
-        case cost = "cost"
-        case id = "id"
-        case inProgressAt = "inProgressAt"
-        case locationId = "locationId"
-        case modifierCount = "modifierCount"
-        case modifiers = "modifiers"
-        case name = "name"
-        case nameOnKDS = "nameOnKDS"
-        case orderId = "orderId"
-        case orderSessionStartedAt = "orderSessionStartedAt"
-        case placedAt = "placedAt"
-        case placedAtPacificDate = "placedAtPacificDate"
-        case placedAtPacificDayOfWeek = "placedAtPacificDayOfWeek"
-        case placedAtPacificHour = "placedAtPacificHour"
-        case placedToClaimed = "placedToClaimed"
-        case placedToCompletion = "placedToCompletion"
-        case rawLineItem = "rawLineItem"
-        case startSessionToCompletion = "startSessionToCompletion"
-        case startSessionToPlaced = "startSessionToPlaced"
-        case state = "state"
-        case uid = "uid"
+        case associate
+        case catalogId
+        case claimedToCompletion
+        case completedAt
+        case cost
+        case id
+        case inProgressAt
+        case locationId
+        case modifierCount
+        case modifiers
+        case name
+        case nameOnKDS
+        case orderId
+        case orderSessionStartedAt
+        case placedAt
+        case placedAtPacificDate
+        case placedAtPacificDayOfWeek
+        case placedAtPacificHour
+        case placedToClaimed
+        case placedToCompletion
+        case rawLineItem
+        case startSessionToCompletion
+        case startSessionToPlaced
+        case state
+        case uid
     }
 
     init(from decoder: Decoder) throws {
@@ -223,49 +225,48 @@ struct Item: Codable, CustomDebugStringConvertible {
     }
 
     func toSwift() -> String {
-            """
-            Item(
-                associate: \(associate),
-                catalogId: "\(catalogId)",
-                claimedToCompletion: \(claimedToCompletion),
-                completedAt:  Date(timeIntervalSince1970: \(completedAt.timeIntervalSince1970)),
-                cost: \(cost),
-                id: "\(id)",
-                inProgressAt:  Date(timeIntervalSince1970: \(inProgressAt.timeIntervalSince1970)),
-                locationId: "\(locationId)",
-                modifierCount: \(modifierCount),
-                modifiers: \(modifiers),
-                name: "\(name)",
-                nameOnKDS: "\(nameOnKDS)",
-                orderId: "\(orderId)",
-                orderSessionStartedAt: "\(orderSessionStartedAt ?? "")",
-                placedAt:  Date(timeIntervalSince1970: \(placedAt.timeIntervalSince1970)),
-                placedAtPacificDate: "\(placedAtPacificDate)",
-                placedAtPacificDayOfWeek: "\(placedAtPacificDayOfWeek)",
-                placedAtPacificHour: \(placedAtPacificHour),
-                placedToClaimed: \(placedToClaimed),
-                placedToCompletion: \(placedToCompletion),
-                rawLineItem: \(rawLineItem),
-                startSessionToCompletion: \(startSessionToCompletion ?? 0),
-                startSessionToPlaced: \(startSessionToPlaced ?? 0),
-                state: "\(state)",
-                uid: "\(uid)"
-                )
-            """
+        """
+        Item(
+            associate: \(associate),
+            catalogId: "\(catalogId)",
+            claimedToCompletion: \(claimedToCompletion),
+            completedAt:  Date(timeIntervalSince1970: \(completedAt.timeIntervalSince1970)),
+            cost: \(cost),
+            id: "\(id)",
+            inProgressAt:  Date(timeIntervalSince1970: \(inProgressAt.timeIntervalSince1970)),
+            locationId: "\(locationId)",
+            modifierCount: \(modifierCount),
+            modifiers: \(modifiers),
+            name: "\(name)",
+            nameOnKDS: "\(nameOnKDS)",
+            orderId: "\(orderId)",
+            orderSessionStartedAt: "\(orderSessionStartedAt ?? "")",
+            placedAt:  Date(timeIntervalSince1970: \(placedAt.timeIntervalSince1970)),
+            placedAtPacificDate: "\(placedAtPacificDate)",
+            placedAtPacificDayOfWeek: "\(placedAtPacificDayOfWeek)",
+            placedAtPacificHour: \(placedAtPacificHour),
+            placedToClaimed: \(placedToClaimed),
+            placedToCompletion: \(placedToCompletion),
+            rawLineItem: \(rawLineItem),
+            startSessionToCompletion: \(startSessionToCompletion ?? 0),
+            startSessionToPlaced: \(startSessionToPlaced ?? 0),
+            state: "\(state)",
+            uid: "\(uid)"
+            )
+        """
     }
- }
-
+}
 
 // MARK: - Input
 /*
-struct ItemAssociateObject: Codable {
-    let active: Bool
-    let id: String
-    let locationId: String
-    let name: String
-    let order: Double
-}
-*/
+ struct ItemAssociateObject: Codable {
+     let active: Bool
+     let id: String
+     let locationId: String
+     let name: String
+     let order: Double
+ }
+ */
 // MARK: - EndInput
 
 struct ItemAssociateObject: Codable {
@@ -281,7 +282,7 @@ struct ItemAssociateObject: Codable {
         locationId: String,
         name: String,
         order: Double
-    ){
+    ) {
         self.active = active
         self.id = id
         self.locationId = locationId
@@ -290,11 +291,11 @@ struct ItemAssociateObject: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case active = "active"
-        case id = "id"
-        case locationId = "locationId"
-        case name = "name"
-        case order = "order"
+        case active
+        case id
+        case locationId
+        case name
+        case order
     }
 
     init(from decoder: Decoder) throws {
@@ -316,41 +317,42 @@ struct ItemAssociateObject: Codable {
     }
 
     func toSwift() -> String {
-            """
-            ItemAssociateObject(
-                active: \(active),
-                id: "\(id)",
-                locationId: "\(locationId)",
-                name: "\(name)",
-                order: \(order))
-            """
+        """
+        ItemAssociateObject(
+            active: \(active),
+            id: "\(id)",
+            locationId: "\(locationId)",
+            name: "\(name)",
+            order: \(order))
+        """
     }
- }
+}
+
 import Foundation
 
 // MARK: - Input
 /*
-struct RawLineItemObject: Codable {
-    let associate: AssociateObject
-    let catalogId: String
-    let completedAt: Double
-    let cost: Double
-    let id: String
-    let imageUrl: String
-    let inProgressAt: Double
-    let locationId: String
-    let modifiers: [ModifiersElement]
-    let name: String
-    let nameOnKDS: String
-    let orderId: String
-    let orderName: String
-    let placedAt: Double
-    let plu: String
-    let state: String
-    let uid: String
-    let version: Double
-}
-*/
+ struct RawLineItemObject: Codable {
+     let associate: AssociateObject
+     let catalogId: String
+     let completedAt: Double
+     let cost: Double
+     let id: String
+     let imageUrl: String
+     let inProgressAt: Double
+     let locationId: String
+     let modifiers: [ModifiersElement]
+     let name: String
+     let nameOnKDS: String
+     let orderId: String
+     let orderName: String
+     let placedAt: Double
+     let plu: String
+     let state: String
+     let uid: String
+     let version: Double
+ }
+ */
 // MARK: - EndInput
 
 struct RawLineItemObject: Codable {
@@ -392,7 +394,7 @@ struct RawLineItemObject: Codable {
         state: String,
         uid: String,
         version: Double
-    ){
+    ) {
         self.associate = associate
         self.catalogId = catalogId
         self.completedAt = completedAt
@@ -414,24 +416,24 @@ struct RawLineItemObject: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case associate = "associate"
-        case catalogId = "catalogId"
-        case completedAt = "completedAt"
-        case cost = "cost"
-        case id = "id"
-        case imageUrl = "imageUrl"
-        case inProgressAt = "inProgressAt"
-        case locationId = "locationId"
-        case modifiers = "modifiers"
-        case name = "name"
-        case nameOnKDS = "nameOnKDS"
-        case orderId = "orderId"
-        case orderName = "orderName"
-        case placedAt = "placedAt"
-        case plu = "plu"
-        case state = "state"
-        case uid = "uid"
-        case version = "version"
+        case associate
+        case catalogId
+        case completedAt
+        case cost
+        case id
+        case imageUrl
+        case inProgressAt
+        case locationId
+        case modifiers
+        case name
+        case nameOnKDS
+        case orderId
+        case orderName
+        case placedAt
+        case plu
+        case state
+        case uid
+        case version
     }
 
     init(from decoder: Decoder) throws {
@@ -483,43 +485,44 @@ struct RawLineItemObject: Codable {
     }
 
     func toSwift() -> String {
-            """
-            RawLineItemObject(
-                associate: \(associate),
-                catalogId: "\(catalogId)",
-                completedAt: \(completedAt),
-                cost: \(cost),
-                id: "\(id)",
-                imageUrl: "\(imageUrl)",
-                inProgressAt: \(inProgressAt),
-                locationId: "\(locationId)",
-                modifiers: \(modifiers),
-                name: "\(name)",
-                nameOnKDS: "\(nameOnKDS)",
-                orderId: "\(orderId)",
-                orderName: "\(orderName)",
-                placedAt: \(placedAt),
-                plu: "\(plu)",
-                state: "\(state)",
-                uid: "\(uid)",
-                version: \(version))
-            """
+        """
+        RawLineItemObject(
+            associate: \(associate),
+            catalogId: "\(catalogId)",
+            completedAt: \(completedAt),
+            cost: \(cost),
+            id: "\(id)",
+            imageUrl: "\(imageUrl)",
+            inProgressAt: \(inProgressAt),
+            locationId: "\(locationId)",
+            modifiers: \(modifiers),
+            name: "\(name)",
+            nameOnKDS: "\(nameOnKDS)",
+            orderId: "\(orderId)",
+            orderName: "\(orderName)",
+            placedAt: \(placedAt),
+            plu: "\(plu)",
+            state: "\(state)",
+            uid: "\(uid)",
+            version: \(version))
+        """
     }
- }
+}
+
 import Foundation
 
 // MARK: - Input
 /*
-struct ModifiersElement: Codable {
-    let catalogObjectId: String
-    let cost: Double
-    let grouping: String
-    let name: String
-    let nameOnKDS: String
-    let stationInKitchen: String
-    let uid: String
-}
-*/
+ struct ModifiersElement: Codable {
+     let catalogObjectId: String
+     let cost: Double
+     let grouping: String
+     let name: String
+     let nameOnKDS: String
+     let stationInKitchen: String
+     let uid: String
+ }
+ */
 // MARK: - EndInput
 
 struct ModifiersElement: Codable {
@@ -539,7 +542,7 @@ struct ModifiersElement: Codable {
         nameOnKDS: String,
         stationInKitchen: String,
         uid: String
-    ){
+    ) {
         self.catalogObjectId = catalogObjectId
         self.cost = cost
         self.grouping = grouping
@@ -550,13 +553,13 @@ struct ModifiersElement: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case catalogObjectId = "catalogObjectId"
-        case cost = "cost"
-        case grouping = "grouping"
-        case name = "name"
-        case nameOnKDS = "nameOnKDS"
-        case stationInKitchen = "stationInKitchen"
-        case uid = "uid"
+        case catalogObjectId
+        case cost
+        case grouping
+        case name
+        case nameOnKDS
+        case stationInKitchen
+        case uid
     }
 
     init(from decoder: Decoder) throws {
@@ -582,31 +585,32 @@ struct ModifiersElement: Codable {
     }
 
     func toSwift() -> String {
-            """
-            ModifiersElement(
-                catalogObjectId: "\(catalogObjectId)",
-                cost: \(cost),
-                grouping: "\(grouping)",
-                name: "\(name)",
-                nameOnKDS: "\(nameOnKDS)",
-                stationInKitchen: "\(stationInKitchen)",
-                uid: "\(uid)"
-                )
-            """
+        """
+        ModifiersElement(
+            catalogObjectId: "\(catalogObjectId)",
+            cost: \(cost),
+            grouping: "\(grouping)",
+            name: "\(name)",
+            nameOnKDS: "\(nameOnKDS)",
+            stationInKitchen: "\(stationInKitchen)",
+            uid: "\(uid)"
+            )
+        """
     }
- }
+}
+
 import Foundation
 
 // MARK: - Input
 /*
-struct AssociateObject: Codable {
-    let active: Bool
-    let id: String
-    let locationId: String
-    let name: String
-    let order: Double
-}
-*/
+ struct AssociateObject: Codable {
+     let active: Bool
+     let id: String
+     let locationId: String
+     let name: String
+     let order: Double
+ }
+ */
 // MARK: - EndInput
 
 struct AssociateObject: Codable {
@@ -622,7 +626,7 @@ struct AssociateObject: Codable {
         locationId: String,
         name: String,
         order: Double
-    ){
+    ) {
         self.active = active
         self.id = id
         self.locationId = locationId
@@ -631,11 +635,11 @@ struct AssociateObject: Codable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case active = "active"
-        case id = "id"
-        case locationId = "locationId"
-        case name = "name"
-        case order = "order"
+        case active
+        case id
+        case locationId
+        case name
+        case order
     }
 
     init(from decoder: Decoder) throws {
@@ -657,13 +661,13 @@ struct AssociateObject: Codable {
     }
 
     func toSwift() -> String {
-            """
-            AssociateObject(
-                active: \(active),
-                id: "\(id)",
-                locationId: "\(locationId)",
-                name: "\(name)",
-                order: \(order))
-            """
+        """
+        AssociateObject(
+            active: \(active),
+            id: "\(id)",
+            locationId: "\(locationId)",
+            name: "\(name)",
+            order: \(order))
+        """
     }
- }
+}

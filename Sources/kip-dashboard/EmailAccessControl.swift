@@ -1,6 +1,6 @@
 //
 //  EmailAccessControl.swift
-//  
+//
 //
 //  Created by Nicholas Trienens on 7/3/23.
 //
@@ -11,8 +11,9 @@ enum EmailAccessControl {
     case domain(String)
     case email(String)
 }
+
 extension Array where Element == EmailAccessControl {
-    func emailAllowed(_ email: String ) -> Bool {
+    func emailAllowed(_ email: String) -> Bool {
         contains { control in
             switch control {
             case let .domain(value):

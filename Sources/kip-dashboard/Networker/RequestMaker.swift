@@ -93,21 +93,20 @@ public class RequestMaker: Requester {
 
         return try await withTaskCancellationHandler(
             operation: {
-                
-                    try await withCheckedThrowingContinuation { continuation in
-                        dataTask = session.dataTask(with: request) { data, response, error in
-                            guard
-                                let data = data,
-                                let response = response as? HTTPURLResponse
-                            else {
-                                continuation.resume(throwing: error ?? URLError(.badServerResponse))
-                                return
-                            }
-                            continuation.resume(returning: (data, response))
+                try await withCheckedThrowingContinuation { continuation in
+                    dataTask = session.dataTask(with: request) { data, response, error in
+                        guard
+                            let data = data,
+                            let response = response as? HTTPURLResponse
+                        else {
+                            continuation.resume(throwing: error ?? URLError(.badServerResponse))
+                            return
                         }
-                        dataTask?.resume()
+                        continuation.resume(returning: (data, response))
                     }
-               
+                    dataTask?.resume()
+                }
+
             },
             onCancel: { cancel() }
         )
