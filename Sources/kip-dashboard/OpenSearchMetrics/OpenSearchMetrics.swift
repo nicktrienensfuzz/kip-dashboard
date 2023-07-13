@@ -1327,7 +1327,7 @@ public extension Array where Element: Hashable {
 
 extension OrdersByDayJson {
     func makeDays() -> [OrdersByDayObj] {
-        (array ?? []).flatMap { bucket -> [OrdersByDayObj] in
+        (self.array ?? []).flatMap { bucket -> [OrdersByDayObj] in
             let locationId = bucket.key.string ?? ""
             return (bucket.dates.buckets.array ?? []).map { date -> OrdersByDayObj in
                 let count: Int = date.doc_count.int ?? 0

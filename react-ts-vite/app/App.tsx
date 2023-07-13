@@ -46,13 +46,15 @@ export default function App() {
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const jwtValue = params.get("token");
-    axios.defaults.headers.common["Authorization"] = "Bearer " + jwtValue;
-    setJwt(jwtValue);
+    if (jwtValue) {
+      axios.defaults.headers.common["Authorization"] = "Bearer " + jwtValue;
+      setJwt(jwtValue);
+    }
   }, []);
 
   React.useEffect(() => {
     async function touchServer() {
-      // console.log("send JWT");
+      console.log("send JWT");
       try {
         const response = await axios.get(
           import.meta.env.VITE_URL + "auth/" + jwt
@@ -85,7 +87,7 @@ export default function App() {
       <AppBar component="nav" position="sticky">
         <Toolbar>
           <Typography variant="h4" component="div">
-            Dashboard
+            MTO Dashboard
           </Typography>
         </Toolbar>
       </AppBar>
@@ -95,8 +97,8 @@ export default function App() {
         <EmailForm />
       ) : (
         <Container>
-          <Box component="main" sx={{ p: 3, maxWidth: "1100px" }}>
-            <Stack spacing={6} sx={{ margin: 3 }}>
+          <Box component="main" sx={{ p: 2, maxWidth: "1050px" }}>
+            <Stack spacing={6} sx={{ margin: 2 }}>
               <OrderSummary />
               <StoreOrdersLineGraph title="Store Orders by Week" />
 

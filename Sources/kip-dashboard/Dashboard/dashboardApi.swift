@@ -30,7 +30,7 @@ class Metric: Codable, CustomDebugStringConvertible {
 }
 
 extension kip_dashboard {
-    struct DataRange {
+    struct DataRange: Codable {
         let start: Date
         let end: Date
         let label: String
@@ -298,7 +298,7 @@ extension kip_dashboard {
             .get("/locations2.json") { _ -> HBResponse in
 
                 let stores = Configuration.locations(ordered: true)
-                let ranges = try ranges().reversed()
+                let ranges = try Array(ranges().reversed())
                 let colors = ColorAssigner()
 
                 let dataSets = try await ranges.asyncMap { range -> JSON in
@@ -319,14 +319,12 @@ extension kip_dashboard {
                         ]
                     }
                 }
-                //           .sorted(by: { a, b in
-                //                a.data.array?.first?.int ?? 0 > b.data.array?.first?.int ?? 0
-                //            })
-
+                
                 let convertedBody = JSON {
                     [
                         "labels": JSON(stores.map { JSON($0.name) }),
                         "stores": dataSets,
+                        "dates": (try? ranges.json()) ?? JSON()
                     ]
                 }
 

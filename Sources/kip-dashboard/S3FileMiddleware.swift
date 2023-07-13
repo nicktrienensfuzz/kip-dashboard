@@ -42,8 +42,7 @@ public class S3FileMiddleware: HBMiddleware {
         return next.respond(to: request)
             .flatMapError { error in
                 guard let httpError = error as? HBHTTPError, httpError.status == .notFound else {
-                    dump(error)
-                    print(error)
+                    request.logger.customTrace(error.localizedDescription)
                     return request.failure(error)
                 }
 
@@ -52,7 +51,7 @@ public class S3FileMiddleware: HBMiddleware {
 
                     if path.contains(".") {
                         let key = (self.folder.withTrailingSlash + path).replacingOccurrences(of: "//", with: "/")
-                        print("trying: " + key)
+                        request.logger.customTrace("trying: " + key)
                         return self.s3.getObject(.init(bucket: self.bucket, key: key))
                             .map { object -> HBResponse in
 
@@ -78,7 +77,7 @@ public class S3FileMiddleware: HBMiddleware {
                                     }
                             }
                     } else {
-                        print("Fallback: " + path)
+                        request.logger.customTrace("Fallback: " + path)
 
                         return self.s3.getObject(.init(bucket: self.bucket, key: self.folder.withTrailingSlash + "index.html"))
                             .map { object in
