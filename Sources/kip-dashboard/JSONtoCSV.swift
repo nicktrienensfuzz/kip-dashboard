@@ -21,12 +21,28 @@ public typealias CSVJSON = Tagged<CSV, JSON>
 //            a.count > b.count
 //        }.first.unwrapped().sorted()
 
-        let headers = "placedToCompletion,claimedToCompletion,catalogId,name,modifiers,locationId,placedAt,timeOfDay,hot,modifier1Id,modifier1Name,modifier2Id,modifier2Name,modifier3Id,modifier3Name,modifier4Id,modifier4Name,modifier5Id,modifier5Name,modifier6Id,modifier6Name,modifier7Id,modifier7Name,modifier8Id,modifier8Name,modifier9Id,modifier9Name,modifier10Id,modifier10Name,placedAtPacificDayOfWeek".split(separator: ",").map(String.init)
+        
+        let headers = "placedToCompletion,claimedToCompletion,catalogId,name,locationId,placedAt,timeOfDay,hot".split(separator: ",").map(String.init)
+        
+        
+//        let headers = "placedToCompletion,claimedToCompletion,catalogId,name,modifiers,locationId,placedAt,timeOfDay,hot,modifier1Id,modifier1Name,modifier2Id,modifier2Name,modifier3Id,modifier3Name,modifier4Id,modifier4Name,modifier5Id,modifier5Name,modifier6Id,modifier6Name,modifier7Id,modifier7Name,modifier8Id,modifier8Name,modifier9Id,modifier9Name,modifier10Id,modifier10Name,placedAtPacificDayOfWeek".split(separator: ",").map(String.init)
         // Create CSV string
 
+        
+        
         var csv = includeHeader ? headers.joined(separator: ",") + "\n" : ""
         for json in jsonArray {
-            let row = headers.map { extractValue(from: json, forHeader: $0) ?? "" }
+            let row = headers.map {
+                if $0 == "placedAt" {
+                    let dateString = extractValue(from: json, forHeader: $0) ?? ""
+                    let cleaned = dateString
+                        .replacingOccurrences(of: "+0000", with: "")
+                        .replacingOccurrences(of: "T", with: " ")
+                    return cleaned
+                } else {
+                    return extractValue(from: json, forHeader: $0) ?? ""
+                }
+            }
             csv += row.joined(separator: ",") + "\n"
         }
         return csv

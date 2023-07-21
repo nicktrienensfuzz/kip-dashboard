@@ -6,6 +6,16 @@
 //
 
 import Foundation
+/*
+ Function to check if the provided email is allowed based on the array of email access controls.
+
+ - Parameters:
+     - email: The email address to be checked.
+
+ - Returns: A boolean value indicating whether the email is allowed or not.
+ 
+
+*/
 
 enum EmailAccessControl {
     case domain(String)

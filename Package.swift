@@ -8,28 +8,27 @@ let package = Package(
     platforms: [
         .macOS(.v13)
     ],
-//    products: [
-//        .executable(name: "kip-dashboard", targets: ["kip-dashboard"]),
-//        .library(name: "Networker", targets: ["Networker"])
-//    ],
+    //    products: [
+    //        .executable(name: "kip-dashboard", targets: ["kip-dashboard"]),
+    //        .library(name: "Networker", targets: ["Networker"])
+    //    ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
-          .package(url: "https://github.com/skelpo/JSON",from: "1.1.4"),
-          .package(url: "https://github.com/hummingbird-project/hummingbird",from: "1.5.1"),
-          .package(url: "https://github.com/hummingbird-project/hummingbird-core",from: "1.3.1"),
-          .package(url: "https://github.com/pointfreeco/swift-tagged",from: "0.10.0"),
-          .package(url: "https://github.com/apple/swift-log",from: "1.5.2"),
-          .package(url: "https://github.com/kylef/PathKit",from: "1.0.1"),
-          .package(url: "https://github.com/apple/swift-atomics",from: "1.1.0"),
-          .package(url: "https://github.com/pointfreeco/swift-dependencies",from: "0.5.1"),
-          .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.4.0"),
-          .package(url: "https://github.com/swift-sprinter/Breeze.git", from: "0.2.0"),
+        .package(url: "https://github.com/skelpo/JSON",from: "1.1.4"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird",from: "1.5.1"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird-core",from: "1.3.1"),
+        .package(url: "https://github.com/pointfreeco/swift-tagged",from: "0.10.0"),
+        .package(url: "https://github.com/apple/swift-log",from: "1.5.2"),
+        .package(url: "https://github.com/kylef/PathKit",from: "1.0.1"),
+        .package(url: "https://github.com/apple/swift-atomics",from: "1.1.0"),
+        .package(url: "https://github.com/pointfreeco/swift-dependencies",from: "0.5.1"),
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.4.0"),
         //    .package(url: "https://github.com/hummingbird-project/hummingbird-lambda.git", exact: "1.0.0-rc.3"),
-          .package(url: "https://github.com/nicktrienensfuzz/hummingbird-lambda.git", branch: "main"),
+        .package(url: "https://github.com/nicktrienensfuzz/hummingbird-lambda.git", branch: "main"),
         .package(url: "https://github.com/vapor/jwt-kit.git", from: "4.0.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird-auth.git", from: "1.0.0"),
         .package(url: "https://github.com/soto-project/soto.git", from: "6.5.0"),
-
+        
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -52,7 +51,7 @@ let package = Package(
                 .product(name: "JWTKit", package: "jwt-kit"),
                 .product(name: "HummingbirdAuth", package: "hummingbird-auth"),
                 .product(name: "SotoS3", package: "soto"),
-
+                
             ]),
         
     ]

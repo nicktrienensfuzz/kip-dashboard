@@ -84,7 +84,18 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-              "must_not": []
+                "must_not": [
+                  {
+                    "match_phrase": {
+                      "locationId.keyword": "LKA2D3148RFDC"
+                    }
+                  },
+                  {
+                    "match_phrase": {
+                      "locationId.keyword": "LGFRKXEFPBDVA"
+                    }
+                  }
+                ]
             }
           }
         }
@@ -105,12 +116,33 @@ struct ProductMetrics {
                           "match_phrase": {
                             "modifierCount": "0"
                           }
+                        },
+                        {
+                          "match_phrase": {
+                            "locationId.keyword": "LKA2D3148RFDC"
+                          }
+                        },
+                        {
+                          "match_phrase": {
+                            "locationId.keyword": "LGFRKXEFPBDVA"
+                          }
                         }
                       ]
             """
         } else {
             mustNot = """
-            "must_not": []
+              "must_not": [
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LKA2D3148RFDC"
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LGFRKXEFPBDVA"
+                  }
+                }
+              ]
             """
         }
 
@@ -205,36 +237,6 @@ struct ProductMetrics {
             "*"
           ],
           "script_fields": {},
-          "docvalue_fields": [
-            {
-              "field": "canceledAt",
-              "format": "date_time"
-            },
-            {
-              "field": "completedAt",
-              "format": "date_time"
-            },
-            {
-              "field": "inProgressAt",
-              "format": "date_time"
-            },
-            {
-              "field": "orderSessionStartedAt",
-              "format": "date_time"
-            },
-            {
-              "field": "placedAt",
-              "format": "date_time"
-            },
-            {
-              "field": "placedAtPacificDate",
-              "format": "date_time"
-            },
-            {
-              "field": "recalledAt",
-              "format": "date_time"
-            }
-          ],
           "_source": {
             "excludes": []
           },
@@ -261,7 +263,18 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-              "must_not": []
+            "must_not": [
+              {
+                "match_phrase": {
+                  "locationId.keyword": "LKA2D3148RFDC"
+                }
+              },
+              {
+                "match_phrase": {
+                  "locationId.keyword": "LGFRKXEFPBDVA"
+                }
+              }
+            ]
             }
           }
         }
@@ -315,6 +328,19 @@ struct ProductMetrics {
                   "avg": {
                     "field": "claimedToCompletion"
                   }
+                },
+                "objectId": {
+                  "top_hits": {
+                      "_source": "catalogId",
+                      "size": 1,
+                      "sort": [
+                        {
+                          "placedAt": {
+                            "order": "desc"
+                          }
+                        }
+                      ]
+                    }
                 }
               }
             }
@@ -324,36 +350,6 @@ struct ProductMetrics {
             "*"
           ],
           "script_fields": {},
-          "docvalue_fields": [
-            {
-              "field": "canceledAt",
-              "format": "date_time"
-            },
-            {
-              "field": "completedAt",
-              "format": "date_time"
-            },
-            {
-              "field": "inProgressAt",
-              "format": "date_time"
-            },
-            {
-              "field": "orderSessionStartedAt",
-              "format": "date_time"
-            },
-            {
-              "field": "placedAt",
-              "format": "date_time"
-            },
-            {
-              "field": "placedAtPacificDate",
-              "format": "date_time"
-            },
-            {
-              "field": "recalledAt",
-              "format": "date_time"
-            }
-          ],
           "_source": {
             "excludes": []
           },
@@ -380,7 +376,18 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-              "must_not": []
+              "must_not": [
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LKA2D3148RFDC"
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LGFRKXEFPBDVA"
+                  }
+                }
+              ]
             }
           }
         }
@@ -408,6 +415,7 @@ struct ProductMetrics {
             body: query.asData
         )
 
+        print(endpoint.cURLRepresentation())
         let source = try await client.request(endpoint)
             .decode(type: JSON.self)
             .get()

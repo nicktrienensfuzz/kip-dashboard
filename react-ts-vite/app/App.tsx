@@ -4,7 +4,17 @@ import styled from "styled-components";
 // import DataGridDemo from "./components/DataGridDemo";
 import StoreOrdersBarGraph from "./components/StoreOrdersBarGraph";
 import StoreOrdersLineGraph from "./components/StoreOrdersLineGraph";
-import { Box, Typography, Stack, AppBar, Toolbar } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Stack,
+  AppBar,
+  Toolbar,
+  IconButton,
+  Menu,
+  MenuItem,
+  Button,
+} from "@mui/material";
 
 import {
   Chart as ChartJS,
@@ -27,6 +37,8 @@ import {
   createRoutesFromElements,
   RouterProvider,
 } from "react-router-dom";
+import { AccountCircle, DownloadOutlined } from "@mui/icons-material";
+import DataGridDemo from "./components/DataGridDemo";
 
 ChartJS.register(
   CategoryScale,
@@ -42,6 +54,47 @@ ChartJS.register(
 export default function App() {
   const [jwt, setJwt] = useState(null);
   const [isLoading, setLoading] = React.useState(true);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+
+  const storeToken = (token: string) => {
+    try {
+      localStorage.setItem("myToken", token);
+      console.log("Token saved to local storage.");
+    } catch (error) {
+      console.log("Failed to save the token to local storage.", error);
+    }
+  };
+
+  const checkToken = (): string | undefined => {
+    try {
+      const token = localStorage.getItem("myToken");
+      if (token) {
+        console.log("Token found: ", token);
+        return token;
+      } else {
+        console.log("Token not found.");
+        return undefined;
+      }
+    } catch (error) {
+      console.log("Failed to retrieve the token.", error);
+      return undefined;
+    }
+  };
+
+  const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleSignOut = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setJwt("");
+    localStorage.removeItem("myToken");
+    axios.defaults.headers.common["Authorization"] = null;
+    window.open = import.meta.env.VITE_URL;
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
   React.useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -49,6 +102,14 @@ export default function App() {
     if (jwtValue) {
       axios.defaults.headers.common["Authorization"] = "Bearer " + jwtValue;
       setJwt(jwtValue);
+      storeToken(jwtValue);
+    } else {
+      let token = checkToken();
+      if (token) {
+        console.log("Token retrieved: ", token);
+        axios.defaults.headers.common["Authorization"] = "Bearer " + token;
+        setJwt(token);
+      }
     }
   }, []);
 
@@ -67,6 +128,7 @@ export default function App() {
         alert(`Error fetching data: ${error}`);
       }
     }
+    console.log("Token effect: ", jwt);
 
     if (jwt !== null) {
       touchServer();
@@ -75,12 +137,28 @@ export default function App() {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route path="/" element={<ItemForm />}>
-        <Route path="/graph" index element={<StoreOrdersLineGraph />} />
-        <Route path="/prd" index element={<ItemForm />} />
+      <Route>
+        <Route path="/index.html" index element={<StoreOrdersLineGraph />} />
+        <Route path="/prd" element={<ItemForm />} />
       </Route>
     )
   );
+  // https://lzvt632jzi.execute-api.us-west-2.amazonaws.com/api/itemMetrics.json
+  const params = new URLSearchParams(window.location.search);
+  const jwtValue = params.get("token");
+  let url = "";
+  if (jwtValue) {
+    url = import.meta.env.VITE_URL + "api/download?url=" + window.location;
+  } else {
+    url =
+      import.meta.env.VITE_URL +
+      "api/download?url=https://zendat.s3.us-west-2.amazonaws.com/index.html?token=" +
+      jwt;
+  }
+
+  var today = new Date();
+  const date =
+    today.getFullYear() + "-" + (today.getMonth() + 1) + "-" + today.getDate();
 
   return (
     <>
@@ -89,6 +167,50 @@ export default function App() {
           <Typography variant="h4" component="div">
             MTO Dashboard
           </Typography>
+          {jwt && (
+            <div>
+              <Typography
+                variant="h4"
+                component="div"
+                sx={{ flexGrow: 1, marginLeft: "20px" }}
+              >
+                {date}
+              </Typography>
+              <IconButton aria-controls="menu-appbar" component="label">
+                <a href={url} download>
+                  <DownloadOutlined htmlColor="#ffffff" />
+                </a>
+              </IconButton>
+
+              <IconButton
+                size="large"
+                aria-label="account of current user"
+                aria-controls="menu-appbar"
+                aria-haspopup="true"
+                onClick={handleMenu}
+                color="inherit"
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id="menu-appbar"
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: "top",
+                  horizontal: "right",
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+              >
+                <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
+              </Menu>
+            </div>
+          )}
         </Toolbar>
       </AppBar>
       {/* <RouterProvider router={router} /> */}
@@ -101,12 +223,11 @@ export default function App() {
             <Stack spacing={6} sx={{ margin: 2 }}>
               <OrderSummary />
               <StoreOrdersLineGraph title="Store Orders by Week" />
-
-              <StoreOrdersBarGraph
+              {/* <StoreOrdersBarGraph
                 title="Store Orders per Week past 4 weeks"
                 dataUrl={import.meta.env.VITE_URL + "api/locations2.json"}
-              />
-              {/* <DataGridDemo /> */}
+              /> */}
+              <DataGridDemo />
             </Stack>
           </Box>
         </Container>

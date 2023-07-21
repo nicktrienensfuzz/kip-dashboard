@@ -42,6 +42,7 @@ import HummingbirdLambda
             configureApi(app, jwtAuthenticator: jwtAuthenticator)
             configureAuth(app, jwtAuthenticator: jwtAuthenticator)
             addRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
+            addProxyRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
         }
     }
 
@@ -56,11 +57,11 @@ import HummingbirdLambda
         var port: Int = 8081
 
         @Option(name: .shortAndLong)
-        var generate: Bool = false
+        var generate: Bool = true
 
         func generate() async throws {
             if var date = "2022-04-20".asDate?.rawStartOfDay {
-                let outputFile = Path("itemMakes_noOutliers.csv")
+                let outputFile = Path("itemMakes_simple_noOutliers.csv")
                 var data = ""
                 var isFirst = true
                 while date < (Date() - 10.days) {
@@ -82,7 +83,7 @@ import HummingbirdLambda
                 print("data lines:", data.split(separator: "\n").count)
             }
 
-            let outputFile = Path("itemMakes_noOutliers_test.csv")
+            let outputFile = Path("itemMakes_simple_noOutliers_test.csv")
             var data = ""
             let date = Date() - 2.days
             print("query \(date)")
@@ -117,7 +118,8 @@ import HummingbirdLambda
             configureApi(app, jwtAuthenticator: jwtAuthenticator)
             configureAuth(app, jwtAuthenticator: jwtAuthenticator)
             addRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
-
+            addProxyRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
+            
             try app.start()
             app.wait()
         }

@@ -10,6 +10,8 @@ import Hummingbird
 import HummingbirdAuth
 import HummingbirdFoundation
 import JSON
+import JWTKit
+import Dependencies
 
 class Metric: Codable, CustomDebugStringConvertible {
     init(name: String, displayName: String = "", labels: [JSON] = [], data: [JSON] = []) {
@@ -46,8 +48,44 @@ extension kip_dashboard {
             .group("api")
             .add(middleware: jwtAuthenticator)
             .get("/itemModification.json", use: itemModification)
+        
+        app.router
+            .group("api")
+            //.add(middleware: jwtAuthenticator)
+            .get("me.json", use: me)
     }
 
+    
+    func me(request: HBRequest) async throws -> HBResponse {
+        guard let jwtToken = request.authBearer?.token ??
+            request.headers.first(name: "permissions") ??
+                request.uri.queryParameters.get("token")
+        else {
+            throw HBHTTPError(.unauthorized)
+        }
+
+        @Dependency(\.configuration) var configuration
+        let key = configuration.jwtSecret
+
+        let signers = JWTSigners()
+        do {
+            signers.use(.hs256(key: key))
+            let payload = try signers.verify(jwtToken, as: JWTPayloadData.self)
+            print(payload.expiration.value)
+            
+            return try HBResponse(
+                status: .ok,
+                headers: .init([("contentType", "application/json")]),
+                body: .data(payload.toData())
+            )
+        } catch {
+            request.logger.debug("couldn't verify token: \(error)")
+            throw HBHTTPError(.unauthorized)
+        }
+        
+        
+    }
+    
     func itemTrends(request: HBRequest) async throws -> HBResponse {
         let d = try await ProductMetrics.itemData()
 
@@ -192,7 +230,7 @@ extension kip_dashboard {
     func configureApi(_ app: HBApplication, jwtAuthenticator: JWTAuthenticator) {
         app.router
             .group("api")
-            .add(middleware: jwtAuthenticator)
+            //.add(middleware: jwtAuthenticator)
             .get("/itemMetrics.json") { _ -> HBResponse in
 
                 let d = try await ProductMetrics.productTable()
@@ -211,7 +249,18 @@ extension kip_dashboard {
                     } else {
                         productJ["cost"] = JSON("$\((product.cost.value.float ?? Float(product.cost.value.int ?? 0)) / 100)")
                     }
-
+                    do {
+                        print(product.objectId)
+                        let productId = try product.objectId.hits.hits.array
+                            .unwrapped("was not an array").first
+                            .unwrapped("was empty")["_source"]
+                        
+                        print(productId)
+                        try productJ["isHot"] = JSON(OpenSearchMetrics.isHotItem(productId))
+                        productJ["catalogId"] = productId.catalogId
+                    } catch {
+                        print(error)
+                    }
                     productJ["placedToCompletion"] = product.placedToCompletion.value
                     productJ["claimedToCompletion"] = product.claimedToCompletion.value
 

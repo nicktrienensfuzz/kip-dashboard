@@ -40,7 +40,7 @@ extension kip_dashboard {
             guard let requestJson = try? request.decode(as: JSON.self) else {
                 throw HBHTTPError(.badRequest)
             }
-            let emailList: [EmailAccessControl] = [.domain("@monstar-lab"), .domain("@genieology.com")]
+            let emailList: [EmailAccessControl] = [.domain("@monstar-lab.com"), .domain("@genieology.com")]
 
             guard let email = requestJson.email.string else {
                 throw HBHTTPError(.badRequest)

@@ -42,6 +42,7 @@ public class S3FileMiddleware: HBMiddleware {
         return next.respond(to: request)
             .flatMapError { error in
                 guard let httpError = error as? HBHTTPError, httpError.status == .notFound else {
+                    dump(error)
                     request.logger.customTrace(error.localizedDescription)
                     return request.failure(error)
                 }
