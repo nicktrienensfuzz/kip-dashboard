@@ -46,8 +46,8 @@ extension DependencyValues {
 private enum HTTPClientKey: DependencyKey {
     static let liveValue: HTTPClient = {
         let timeout = HTTPClient.Configuration.Timeout(
-            connect: .seconds(20),
-            read: .seconds(20)
+            connect: .seconds(25),
+            read: .seconds(25)
         )
         let httpClient = HTTPClient(
             eventLoopGroupProvider: .createNew,

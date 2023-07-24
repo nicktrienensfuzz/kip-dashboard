@@ -57,7 +57,7 @@ import HummingbirdLambda
         var port: Int = 8081
 
         @Option(name: .shortAndLong)
-        var generate: Bool = true
+        var generate: Bool = false
 
         func generate() async throws {
             if var date = "2022-04-20".asDate?.rawStartOfDay {

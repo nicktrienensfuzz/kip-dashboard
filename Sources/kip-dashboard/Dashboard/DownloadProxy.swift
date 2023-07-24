@@ -35,13 +35,14 @@ extension kip_dashboard {
         let response: HTTPClient.Response = try await client.request(endpoint).get()
         
         print(response.headers)
-        response.body?.
-        
+        //response.body?.
+        let data = try Data(buffer: response.body.unwrapped())
+
         return try HBResponse(
             status: .ok,
             headers: .init([("Content-Type", "application/pdf"),
                             ("Content-Disposition", "attachment; filename=BluejayReport_" + UUID().uuidString + ".pdf")]),
-            body: .byteBuffer(response.body.unwrapped())
+            body: .data(data)
         )
     }
 }
