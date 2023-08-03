@@ -38,10 +38,11 @@ extension kip_dashboard {
         //response.body?.
         let data = try Data(buffer: response.body.unwrapped())
 
-        return try HBResponse(
+        return HBResponse(
             status: .ok,
             headers: .init([("Content-Type", "application/pdf"),
-                            ("Content-Disposition", "attachment; filename=BluejayReport_" + UUID().uuidString + ".pdf")]),
+                            ("Content-Disposition", "attachment; filename=BluejayReport_" + UUID().uuidString + ".pdf"),
+                            ("S3-Url", response.headers.first(name: "S3-Url") ?? "")]),
             body: .data(data)
         )
     }

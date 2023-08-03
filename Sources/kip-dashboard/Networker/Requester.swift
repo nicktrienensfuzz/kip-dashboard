@@ -9,7 +9,6 @@ import Foundation
 #if canImport(FoundationNetworking)
     import FoundationNetworking
 #endif
-// import Atomics
 
 public protocol Requester {
     func makeRequest(_ endpoint: EndpointRequest) async throws -> Data

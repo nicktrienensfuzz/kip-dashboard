@@ -14,6 +14,18 @@ public typealias CSVJSON = Tagged<CSV, JSON>
 
 #if canImport(AppKit)
 
+func jsonToCsv(jsonArray: [JSON], headers headerIn: String = "id,name", includeHeader: Bool = true) throws -> String {
+    let headers: [String] = headerIn.split(separator: ",").map(String.init)
+    var csv = includeHeader ? headers.joined(separator: ",") + "\n" : ""
+    for json in jsonArray {
+        let row = headers.map {
+            return extractValue(from: json, forHeader: $0) ?? ""
+        }
+        csv += row.joined(separator: ",") + "\n"
+    }
+    return csv
+    
+}
     func jsonToCsv(jsonArray: [JSON], includeHeader: Bool = true) throws -> String {
         // Extract headers
 //    let headers = try jsonArray.map { CSVJSON(rawValue:  $0).extractHeaders() }

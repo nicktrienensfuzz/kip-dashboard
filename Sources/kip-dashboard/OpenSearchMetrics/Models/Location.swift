@@ -24,15 +24,17 @@ struct Location: Codable {
         return lines[index].asString
     }
 
-    internal init(id: String, name: String, openedAt: Date? = nil, index: Int = 0) {
+    internal init(id: String, name: String, openedAt: Date? = nil, region: String, index: Int = 0) {
         self.id = id
         self.name = name
         self.openedAt = openedAt
+        self.region = region
         colorString = Self.color(index)
     }
 
     let id: String
     let name: String
+    let region: String
     let openedAt: Date?
     let colorString: String
     var data: JSON?

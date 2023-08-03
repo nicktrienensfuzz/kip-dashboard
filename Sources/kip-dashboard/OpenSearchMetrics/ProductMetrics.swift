@@ -195,9 +195,9 @@ struct ProductMetrics {
         return result
     }
 
-    static func itemData() async throws -> JSON {
-        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
-        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
+    static func itemData( startDate: Date, endDate: Date) async throws -> JSON {
+//        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
+//        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
 
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
@@ -227,6 +227,11 @@ struct ProductMetrics {
                 "modifierCount": {
                   "avg": {
                     "field": "modifierCount"
+                  }
+                },
+                "cost": {
+                  "avg": {
+                    "field": "cost"
                   }
                 }
               }
@@ -394,6 +399,170 @@ struct ProductMetrics {
         """
         return try await makeRequest(query: query, index: index)
     }
+    
+    static func storeOrders(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
+
+        let locationFilter: String
+        if let locationId {
+            locationFilter = """
+            {
+              "match_phrase": {
+                 "locationId.keyword": "\(locationId)"
+              }
+            },
+            """
+        } else {
+            locationFilter = ""
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*orders-prod"
+        let query = """
+        {
+           "aggs": {
+            "AOV": {
+            "avg":{
+               "field": "totalCost"
+                }
+            },
+              "3": {
+                "avg_bucket": {
+                  "buckets_path": "3-bucket>_count"
+                }
+              },
+              "3-bucket": {
+                "date_histogram": {
+                  "field": "placedAt",
+                  "calendar_interval": "1w",
+                  "time_zone": "America/Los_Angeles",
+                  "min_doc_count": 1
+                }
+              }
+            },
+          "size": 0,
+          "track_total_hits": true,
+         "stored_fields": [
+            "*"
+          ],
+          "script_fields": {},
+          "_source": {
+            "excludes": []
+          },
+          "docvalue_fields": [
+            {
+              "field": "placedAt",
+              "format": "date_time"
+            }
+          ],
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {}
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                \(locationFilter)
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  }
+                }
+              ],
+              "should": [],
+              "must_not": []
+            }
+          }
+        }
+        """
+        let result = try await makeRequest(query: query, index: index)
+        return result
+    }
+    static func storeItems(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
+        let locationFilter: String
+        if let locationId {
+            locationFilter = """
+            {
+              "match_phrase": {
+                 "locationId.keyword": "\(locationId)"
+              }
+            },
+            """
+        } else {
+            locationFilter = ""
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*-lineitems-prod"
+        let query = """
+        {
+           "aggs": {
+            "cost": {
+                "avg":{
+                    "field": "cost"
+                }
+            }
+        },
+          "size": 0,
+          "track_total_hits": true,
+         "stored_fields": [
+            "*"
+          ],
+          "script_fields": {},
+          "_source": {
+            "excludes": []
+          },
+          "docvalue_fields": [
+            {
+              "field": "placedAt",
+              "format": "date_time"
+            }
+          ],
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {}
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                \(locationFilter)
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  }
+                }
+              ],
+              "should": [],
+              "must_not": []
+            }
+          }
+        }
+        """
+        let result = try await makeRequest(query: query, index: index)
+       // print(result)
+        return result
+    }
 
     static func makeRequest(query: String, index: String) async throws -> JSON {
         @Dependency(\.configuration) var config
@@ -415,7 +584,7 @@ struct ProductMetrics {
             body: query.asData
         )
 
-        print(endpoint.cURLRepresentation())
+        //print(endpoint.cURLRepresentation())
         let source = try await client.request(endpoint)
             .decode(type: JSON.self)
             .get()

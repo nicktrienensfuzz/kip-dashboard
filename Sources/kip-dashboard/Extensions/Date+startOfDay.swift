@@ -81,6 +81,10 @@ public extension String {
         if let date = Self.dateFormatter.date(from: self) {
             return date
         }
+        Self.dateFormatter.dateFormat = "MMM dd, yyyy"
+        if let date = Self.dateFormatter.date(from: self) {
+            return date
+        }
         print(self, "Failed to parse")
         return nil
     }

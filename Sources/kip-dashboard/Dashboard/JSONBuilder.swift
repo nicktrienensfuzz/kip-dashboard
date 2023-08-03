@@ -16,17 +16,21 @@ public func json(@JSONBuilder conditions makeResult: () -> JSON) -> JSON {
 
 // Extension to JSON struct to initialize it with a JSONBuilder.
 extension JSON {
-    init(@JSONBuilder statements: () -> JSON) {
+    public init(@JSONBuilder statements: () -> JSON) {
         self = statements()
     }
 
-    init(_ array: [JSON]) {
+    public init(_ array: [JSON]) {
         self = .array(array)
     }
 
     // Helper method to create a JSON array using a JSONBuilder
-    static func array(@JSONBuilder statements: () -> JSON) -> JSON {
+    public static func array(@JSONBuilder statements: () -> JSON) -> JSON {
         JSON(arrayLiteral: statements())
+    }
+    
+    public init(_ string: String.SubSequence) {
+        self = .string(string.asString)
     }
 }
 

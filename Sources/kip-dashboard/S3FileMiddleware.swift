@@ -38,14 +38,18 @@ public class S3FileMiddleware: HBMiddleware {
         if path == "/" {
             path = "index.html"
         }
+//        request.logger.customTrace("Incoming request: \(request.uri) => " + path)
 
         return next.respond(to: request)
             .flatMapError { error in
+
                 guard let httpError = error as? HBHTTPError, httpError.status == .notFound else {
                     dump(error)
                     request.logger.customTrace(error.localizedDescription)
                     return request.failure(error)
                 }
+
+                request.logger.customTrace(request)
 
                 switch request.method {
                 case .GET:
@@ -78,7 +82,13 @@ public class S3FileMiddleware: HBMiddleware {
                                     }
                             }
                     } else {
-                        request.logger.customTrace("Fallback: " + path)
+
+                        request.logger.customTrace("Fallback: \(request.uri) => " + path)
+                        request.logger.customTrace("Fallback: \(request.headers.first(name: "Accept") ?? "")")
+                        if request.headers.first(name: "Accept") != "text/html" {
+                            return request.failure(error)
+                        }
+                        
 
                         return self.s3.getObject(.init(bucket: self.bucket, key: self.folder.withTrailingSlash + "index.html"))
                             .map { object in

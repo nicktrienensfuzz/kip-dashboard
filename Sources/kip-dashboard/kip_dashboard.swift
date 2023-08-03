@@ -14,11 +14,17 @@ import HummingbirdTLS
 import JSON
 import Logging
 import PathKit
+import NIOCore
+import NIO
+import NIOHTTP1
 
 import AWSLambdaEvents
 import AWSLambdaRuntimeCore
 import HummingbirdAuth
 import HummingbirdLambda
+import QRCodeGenerator
+
+
 
 #if !canImport(AppKit)
     @main
@@ -35,15 +41,27 @@ import HummingbirdLambda
             @Dependency(\.configuration) var configuration
 
             app.decoder = JSONDecoder()
-            app.encoder = JSONEncoder()
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            app.encoder = encoder
+            
             let jwtAuthenticator = JWTAuthenticator()
 
-            configure(app, jwtAuthenticator: jwtAuthenticator)
             configureApi(app, jwtAuthenticator: jwtAuthenticator)
             configureAuth(app, jwtAuthenticator: jwtAuthenticator)
             addRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
             addProxyRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
         }
+        
+//        /// Handle invoke
+//        /// Specialization of HBLambda.request where `In` is `APIGateway.Request`
+//        public func request(context: LambdaContext, application: HBApplication, from: Event) throws -> HBRequest {
+//            var request = try HBRequest(context: context, application: application, from: from)
+//            // store api gateway v2 request so it is available in routes
+//            request.extensions.set(\.apiGatewayV2Request, value: from)
+//            return request
+//        }
+        
     }
 
 #else
@@ -54,7 +72,7 @@ import HummingbirdLambda
         var hostname: String = "127.0.0.1"
 
         @Option(name: .shortAndLong)
-        var port: Int = 8081
+        var port: Int = 8082
 
         @Option(name: .shortAndLong)
         var generate: Bool = false
@@ -106,7 +124,8 @@ import HummingbirdLambda
             app.middleware.add(HBLogRequestsMiddleware(.debug))
             app.middleware.add(HBCORSMiddleware(allowOrigin: .all))
             app.addPersist(using: .memory)
-            app.configureS3()
+            app.configureS3()        
+
 
             @Dependency(\.configuration) var configuration
 
@@ -114,14 +133,63 @@ import HummingbirdLambda
             app.encoder = JSONEncoder()
             let jwtAuthenticator = JWTAuthenticator()
 
-            configure(app, jwtAuthenticator: jwtAuthenticator)
             configureApi(app, jwtAuthenticator: jwtAuthenticator)
             configureAuth(app, jwtAuthenticator: jwtAuthenticator)
             addRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
             addProxyRoutes(to: app, jwtAuthenticator: jwtAuthenticator)
             
             try app.start()
+            
+
+            app.router.get("svg") { _ in
+                let qr = try! QRCode.encode(text: "https://github.com/EFPrefix/swift_qrcodejs/blob/main/Package.swift", ecl: .high)
+                let svg = qr.toSVGString(border: 4)
+                
+                var headers = HTTPHeaders()
+                if let contentType = HBMediaType.getMediaType(forExtension: ".svg") {
+                    headers.add(name: "content-type", value: contentType.description)
+                }
+                return HBResponse(status: .ok, headers: headers, body: .data(svg))
+            }
+            
+            let r = HBRequest(path: "api/itemSalesTrend.json", application: app)
+            let res = try await Exporter.products(request: r)
+            try Path("products.csv").write(res.body.asString.unwrapped())
+            
+            let res2 = try await Exporter.categories(request: r)
+            try Path("categories.csv").write(res2.body.asString.unwrapped())
+            
+            let res3 = try await Exporter.modifiers(request: r)
+            try Path("modifiers.csv").write(res3.body.asString.unwrapped())
+            
+            let res4 = try await Exporter.steps(request: r)
+            try Path("makeSteps.tsv").write(res4.body.asString.unwrapped())
+            
+            
             app.wait()
         }
     }
 #endif
+
+extension HBResponseBody {
+    var asString: String? {
+        switch self {
+        case let .byteBuffer(buffer):
+            return buffer.getString(at: 0, length: buffer.readableBytes)
+        case let .stream(streamer):
+            return ""
+        default:
+            return nil
+        }
+    }
+    var asData: Data? {
+        switch self {
+        case let .byteBuffer(buffer):
+            return buffer.getData(at: 0, length: buffer.readableBytes)
+        case let .stream(streamer):
+            return nil
+        default:
+            return nil
+        }
+    }
+}
