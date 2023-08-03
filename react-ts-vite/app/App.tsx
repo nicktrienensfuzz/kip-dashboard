@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 
-// import DataGridDemo from "./components/DataGridDemo";
-import StoreOrdersBarGraph from "./components/StoreOrdersBarGraph";
 import StoreOrdersLineGraph from "./components/StoreOrdersLineGraph";
 import {
   Box,
@@ -39,6 +37,7 @@ import {
 } from "react-router-dom";
 import { AccountCircle, DownloadOutlined } from "@mui/icons-material";
 import DataGridDemo from "./components/DataGridDemo";
+import StoreGrid from "./components/StoreGrid";
 
 ChartJS.register(
   CategoryScale,
@@ -168,7 +167,7 @@ export default function App() {
             MTO Dashboard
           </Typography>
           {jwt && (
-            <div>
+            <>
               <Typography
                 variant="h4"
                 component="div"
@@ -209,11 +208,12 @@ export default function App() {
               >
                 <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
               </Menu>
-            </div>
+            </>
           )}
         </Toolbar>
       </AppBar>
       {/* <RouterProvider router={router} /> */}
+      {/* <ItemForm /> */}
 
       {jwt === null || isLoading ? (
         <EmailForm />
@@ -227,6 +227,7 @@ export default function App() {
                 title="Store Orders per Week past 4 weeks"
                 dataUrl={import.meta.env.VITE_URL + "api/locations2.json"}
               /> */}
+              <StoreGrid />
               <DataGridDemo />
             </Stack>
           </Box>

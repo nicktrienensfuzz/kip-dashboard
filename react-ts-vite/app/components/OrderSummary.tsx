@@ -76,6 +76,10 @@ export default function OrderSummary() {
             <OutlinedHistoryCard object={itemData[1]} />
             <OutlinedHistoryCard object={itemModicationData} />
           </Stack>
+
+          <Stack direction="row" spacing={2}>
+            <OutlinedHistoryCard object={itemData[3]} />
+          </Stack>
         </Stack>
       )}
     </>
