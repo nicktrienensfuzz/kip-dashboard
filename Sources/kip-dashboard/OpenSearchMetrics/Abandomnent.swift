@@ -11,7 +11,7 @@ import JSON
 
 enum Abandonment {
     static func abandonment() async throws -> JSON {
-        
+        func queryLocation(location: String ) async throws -> JSON {
         let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().startOfDay - 8.weeks
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
         
@@ -31,25 +31,12 @@ enum Abandonment {
           "min_doc_count": 1
         },
         "aggs": {
-          "location": {
+          "outcome": {
             "significant_terms": {
-              "field": "locationId.keyword",
-              "size": 20
+              "field": "sessionSummary.orderOutcome.keyword",
+              "size": 5
             },
             "aggs": {
-              "outcome": {
-                "significant_terms": {
-                  "field": "sessionSummary.orderOutcome.keyword",
-                  "size": 5
-                },
-                "aggs": {
-                  "7": {
-                    "avg": {
-                      "field": "elapsedOrderTimeInSession"
-                    }
-                  }
-                }
-              },
               "7": {
                 "avg": {
                   "field": "elapsedOrderTimeInSession"
@@ -101,6 +88,11 @@ enum Abandonment {
           }
         },
         {
+          "match_phrase": {
+            "locationId": "\(location)"
+          }
+        },
+        {
           "range": {
             "timestamp": {
               "gte": "\(dateFormatter.string(from: startDate))",
@@ -117,21 +109,29 @@ enum Abandonment {
 }
 """
         
-        let data = try await ProductMetrics.makeRequest(query: query, index: index)
+        return try await ProductMetrics.makeRequest(query: query, index: index)
+    }
         var map = [JSON]()
-        try data.aggregations.2.buckets.array.unwrapped().forEach { json in
-            var productJ = JSON()
-            productJ["date"] = JSON(Date(timeIntervalSince1970: Double((json.key.int ?? 0) / 1000)).formatted("M/dd/yyyy"))
-            productJ["count"] = json.doc_count
+        
+        for location in Configuration.locations() {
             
-            try json.location.buckets.array.unwrapped().forEach { json in
-                productJ["location"] = json.key
-                
+            let data = try await queryLocation(location: location.id)
+            
+            try data.aggregations.2.buckets.array.unwrapped().forEach { json in
+                var productJ = JSON()
+                productJ["date"] = JSON(Date(timeIntervalSince1970: Double((json.key.int ?? 0) / 1000)).formatted("M/dd/yyyy"))
+                productJ["count"] = json.doc_count
+                productJ["location"] = JSON(location.id)
+                // try json.location.buckets.array.unwrapped().forEach { json in
+                //
+                //
                 try json.outcome.buckets.array.unwrapped().forEach { json in
                     productJ["outcome"] = json.key
-                    productJ["avgSession"] = json.7.value
+                    productJ["avgSessionLength"] = json.7.value
+                    productJ["count"] = json.doc_count
                     map.append( productJ )
                 }
+                //            }
             }
         }
         

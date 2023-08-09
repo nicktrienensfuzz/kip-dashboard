@@ -154,7 +154,7 @@ import QRCodeGenerator
             
             let data = try await Abandonment.abandonment()
             try Path("abandonment.json").write(data.toString(outputFormatting: .prettyPrinted))
-            let csv = try jsonToCsv(jsonArray: data.array.unwrapped(), headers: "date,location,outcome,avgSession")
+            let csv = try jsonToCsv(jsonArray: data.array.unwrapped(), headers: "date,location,outcome,count,avgSessionLength")
             try Path("abandonment.csv").write(csv)
             print(data)
             
