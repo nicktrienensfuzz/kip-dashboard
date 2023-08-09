@@ -152,6 +152,12 @@ import QRCodeGenerator
                 return HBResponse(status: .ok, headers: headers, body: .data(svg))
             }
             
+            let data = try await Abandonment.abandonment()
+            try Path("abandonment.json").write(data.toString(outputFormatting: .prettyPrinted))
+            let csv = try jsonToCsv(jsonArray: data.array.unwrapped(), headers: "date,location,outcome,avgSession")
+            try Path("abandonment.csv").write(csv)
+            print(data)
+            
             let r = HBRequest(path: "api/itemSalesTrend.json", application: app)
             let res = try await Exporter.products(request: r)
             try Path("products.csv").write(res.body.asString.unwrapped())
@@ -176,7 +182,7 @@ extension HBResponseBody {
         switch self {
         case let .byteBuffer(buffer):
             return buffer.getString(at: 0, length: buffer.readableBytes)
-        case let .stream(streamer):
+        case  .stream:
             return ""
         default:
             return nil
@@ -186,7 +192,7 @@ extension HBResponseBody {
         switch self {
         case let .byteBuffer(buffer):
             return buffer.getData(at: 0, length: buffer.readableBytes)
-        case let .stream(streamer):
+        case  .stream:
             return nil
         default:
             return nil

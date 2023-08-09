@@ -32,71 +32,75 @@ extension JSON {
     public init(_ string: String.SubSequence) {
         self = .string(string.asString)
     }
+    
+    public init(_ dictionary: [String: JSONRepresentable]) {
+        self = .object(dictionary.mapValues{ $0.json })
+    }
 }
 
 // JSONBuilder is a Swift result builder utilizing the new @resultBuilder directive in Swift.
 // It allows the creation of JSON structures using Swift syntax.
 // It supports JSON objects, JSON arrays, strings, numbers (Int, Float, Double), booleans and `null` JSON values.
 @resultBuilder
-enum JSONBuilder {
-    static func buildBlock(_ components: JSON...) -> JSON {
+public enum JSONBuilder {
+    public static func buildBlock(_ components: JSON...) -> JSON {
         if components.count == 1 {
             return components[0]
         }
         return .array(components)
     }
 
-    static func buildExpression(_ expression: [String: JSON]) -> JSON {
+    public static func buildExpression(_ expression: [String: JSON]) -> JSON {
         .object(expression)
     }
 
-    static func buildExpression(_ expression: [String: JSONRepresentable]) -> JSON {
+    public static func buildExpression(_ expression: [String: JSONRepresentable]) -> JSON {
         .object(expression.mapValues { value in
             value.json
         })
     }
 
-    static func buildFinalResult(_ component: JSON) -> JSON {
+    public static func buildFinalResult(_ component: JSON) -> JSON {
         component
     }
 
-    static func buildOptional(_ component: JSON?) -> JSON {
+    public static func buildOptional(_ component: JSON?) -> JSON {
         component ?? .null
     }
 
-    static func buildEither(first: JSON) -> JSON {
+    public static func buildEither(first: JSON) -> JSON {
         first
     }
 
-    static func buildEither(second: JSON) -> JSON {
+    public static func buildEither(second: JSON) -> JSON {
         second
     }
 
-    static func buildArray(_ components: [JSON]) -> JSON {
+    public static func buildArray(_ components: [JSON]) -> JSON {
         .array(components)
     }
 
-    static func buildExpression(_ expression: String) -> JSON {
+    public static func buildExpression(_ expression: String) -> JSON {
         .string(expression)
     }
 
-    static func buildExpression(_ expression: Int) -> JSON {
+    public static func buildExpression(_ expression: Int) -> JSON {
         .number(.int(expression))
     }
 
-    static func buildExpression(_ expression: Double) -> JSON {
+    public static func buildExpression(_ expression: Double) -> JSON {
         .number(.double(expression))
     }
 
-    static func buildExpression(_ expression: Float) -> JSON {
+    public static func buildExpression(_ expression: Float) -> JSON {
         .number(.float(expression))
     }
 
-    static func buildExpression(_ expression: Bool) -> JSON {
+    public static func buildExpression(_ expression: Bool) -> JSON {
         .bool(expression)
     }
 
-    static func buildExpression(_ expression: Decimal) -> JSON {
+    public static func buildExpression(_ expression: Decimal) -> JSON {
         .number(.decimal(expression))
     }
 
@@ -106,31 +110,31 @@ enum JSONBuilder {
         })
     }
 
-    static func buildExpression(_ expression: [String: Int]) -> JSON {
+    public static func buildExpression(_ expression: [String: Int]) -> JSON {
         .object(expression.mapValues { value in
             JSON.number(.int(value))
         })
     }
 
-    static func buildExpression(_ expression: [String: Double]) -> JSON {
+    public static func buildExpression(_ expression: [String: Double]) -> JSON {
         .object(expression.mapValues { value in
             JSON.number(.double(value))
         })
     }
 
-    static func buildExpression(_ expression: [String: Float]) -> JSON {
+    public static func buildExpression(_ expression: [String: Float]) -> JSON {
         .object(expression.mapValues { value in
             JSON.number(.float(value))
         })
     }
 
-    static func buildExpression(_ expression: [String: Decimal]) -> JSON {
+    public static func buildExpression(_ expression: [String: Decimal]) -> JSON {
         .object(expression.mapValues { value in
             JSON.number(.decimal(value))
         })
     }
 
-    static func buildExpression(_ expression: [String: Bool]) -> JSON {
+    public static func buildExpression(_ expression: [String: Bool]) -> JSON {
         .object(expression.mapValues { value in
             JSON.bool(value)
         })
