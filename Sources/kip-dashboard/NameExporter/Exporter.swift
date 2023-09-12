@@ -11,9 +11,8 @@ import JSON
 import Hummingbird
 import AsyncHTTPClient
 
+#if canImport(AppKit)
 enum Exporter {
-    
-    
     static func addRoutes(to app: HBApplication, jwtAuthenticator: JWTAuthenticator) {
         app.router
             .group("exporter")
@@ -108,3 +107,4 @@ enum Exporter {
         return HBResponse(status: .ok,body: .data(csv))
     }
 }
+#endif

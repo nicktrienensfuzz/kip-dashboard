@@ -423,10 +423,10 @@ struct ProductMetrics {
         {
            "aggs": {
             "AOV": {
-            "avg":{
-               "field": "totalCost"
-                }
-            },
+                "avg":{
+                   "field": "totalCost"
+                    }
+                },
               "3": {
                 "avg_bucket": {
                   "buckets_path": "3-bucket>_count"
@@ -488,6 +488,84 @@ struct ProductMetrics {
         let result = try await makeRequest(query: query, index: index)
         return result
     }
+    static func storeOrderValue(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
+
+        let locationFilter: String
+        if let locationId {
+            locationFilter = """
+            {
+              "match_phrase": {
+                 "locationId.keyword": "\(locationId)"
+              }
+            },
+            """
+        } else {
+            locationFilter = ""
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*orders-prod"
+        let query = """
+        {
+           "aggs": {
+                "sales": {
+                    "sum": {
+                        "field": "totalCost"
+                     }
+                }
+            },
+          "size": 0,
+          "track_total_hits": true,
+         "stored_fields": [
+            "*"
+          ],
+          "script_fields": {},
+          "_source": {
+            "excludes": []
+          },
+          "docvalue_fields": [
+            {
+              "field": "placedAt",
+              "format": "date_time"
+            }
+          ],
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {}
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                \(locationFilter)
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  }
+                }
+              ],
+              "should": [],
+              "must_not": []
+            }
+          }
+        }
+        """
+        
+        print(query)
+        let result = try await makeRequest(query: query, index: index)
+        return result
+    }
+    
     static func storeItems(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
         let locationFilter: String
         if let locationId {

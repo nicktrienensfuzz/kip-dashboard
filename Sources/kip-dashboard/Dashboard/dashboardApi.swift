@@ -107,9 +107,17 @@ extension kip_dashboard {
         
         let recentStartDate = recentEndDate - 8.weeks
         
-        let completeLocations = try await locations.asyncMap{ location -> JSON in
+        
+        var AllLoc: [String: Float] = ["totalOrders": 0.0, "totalSales": 0.0]
+        
+
+        var completeLocations = try await locations.asyncMap{ location -> JSON in
             
             let allTimeResults = try await ProductMetrics.storeOrders(
+                locationId: location.id,
+                startDate: location.openedAt.unwrapped())
+            
+            let allTimeSales = try await ProductMetrics.storeOrderValue(
                 locationId: location.id,
                 startDate: location.openedAt.unwrapped())
             
@@ -122,7 +130,7 @@ extension kip_dashboard {
                 startDate: recentStartDate,
                 endDate: recentEndDate)
             
-            //request.logger.customTrace(allTimeResults)
+            request.logger.customTrace(allTimeSales)
             var loc = try location.json()
             let brokenName = try loc["name"].string.unwrapped().split(separator: "/")
             loc["title"] = try JSON( brokenName.last.unwrapped())
@@ -130,6 +138,10 @@ extension kip_dashboard {
                                      
             loc["regionId"] = try JSON(loc["region"].string.unwrapped() + "\n" + loc["id"].string.unwrapped())
             loc["totalOrders"] = allTimeResults.hits.total.value
+            AllLoc["totalOrders"]! += allTimeResults.hits.total.value.float ?? Float(allTimeResults.hits.total.value.int ?? 0)
+            
+            AllLoc["totalSales"]! += Float(allTimeSales.aggregations["sales"].value.int ?? 0)
+            
             loc["totalOrdersAOV"] = JSON( "$\(((allTimeResults.aggregations["AOV"].value.float ?? 0).rounded() / 100.0)  )")
             loc["weeklyAverage"] = allTimeResults.aggregations["3"].value
             
@@ -141,6 +153,22 @@ extension kip_dashboard {
             return loc
         }
         
+        var allLocJson = AllLoc.json
+        allLocJson["id"] = JSON("all")
+        allLocJson["title"] = JSON("All")
+        allLocJson["storeCode"] = JSON("")
+        
+        allLocJson["regionId"] = JSON( "$\(((AllLoc["totalSales"] ?? 0).rounded() / 100.0)  ) Sales")
+
+        allLocJson["totalOrdersAOV"] = JSON("")
+        allLocJson["weeklyAverage"] = JSON("")
+        allLocJson["itemAV"] = JSON("")
+        allLocJson["weeklyAverage"] = JSON("")
+        allLocJson["2MonthOrders"] = JSON("")
+        allLocJson["2MonthWeeklyAverage"] = JSON("")
+        allLocJson["2MonthOrdersAOV"] = JSON("")
+        
+        completeLocations.append(allLocJson)
         
         return try HBResponse(
             status: .ok,

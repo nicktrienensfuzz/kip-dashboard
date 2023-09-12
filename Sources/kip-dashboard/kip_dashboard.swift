@@ -152,25 +152,27 @@ import QRCodeGenerator
                 return HBResponse(status: .ok, headers: headers, body: .data(svg))
             }
             
-            let data = try await Abandonment.abandonment()
-            try Path("abandonment.json").write(data.toString(outputFormatting: .prettyPrinted))
-            let csv = try jsonToCsv(jsonArray: data.array.unwrapped(), headers: "date,location,outcome,count,avgSessionLength")
-            try Path("abandonment.csv").write(csv)
-            print(data)
-            
-            let r = HBRequest(path: "api/itemSalesTrend.json", application: app)
-            let res = try await Exporter.products(request: r)
-            try Path("products.csv").write(res.body.asString.unwrapped())
-            
-            let res2 = try await Exporter.categories(request: r)
-            try Path("categories.csv").write(res2.body.asString.unwrapped())
-            
-            let res3 = try await Exporter.modifiers(request: r)
-            try Path("modifiers.csv").write(res3.body.asString.unwrapped())
-            
-            let res4 = try await Exporter.steps(request: r)
-            try Path("makeSteps.tsv").write(res4.body.asString.unwrapped())
-            
+//            let data = try await Abandonment.abandonment()
+//            try Path("abandonment.json").write(data.toString(outputFormatting: .prettyPrinted))
+//            let csv = try jsonToCsv(jsonArray: data.array.unwrapped(), headers: "date,location,outcome,count,avgSessionLength")
+//            try Path("abandonment.csv").write(csv)
+//            print(data)
+//
+            let r = HBRequest(path: "api/locationsList.json", application: app)
+            let res = try await locationsList(request: r)
+            try Path("locationJSON.json").write(res.body.asString.unwrapped())
+//            let res = try await Exporter.products(request: r)
+//            try Path("products.csv").write(res.body.asString.unwrapped())
+//
+//            let res2 = try await Exporter.categories(request: r)
+//            try Path("categories.csv").write(res2.body.asString.unwrapped())
+//
+//            let res3 = try await Exporter.modifiers(request: r)
+//            try Path("modifiers.csv").write(res3.body.asString.unwrapped())
+//
+//            let res4 = try await Exporter.steps(request: r)
+//            try Path("makeSteps.tsv").write(res4.body.asString.unwrapped())
+//
             
             app.wait()
         }
