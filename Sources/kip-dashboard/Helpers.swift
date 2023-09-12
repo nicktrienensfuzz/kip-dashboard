@@ -17,7 +17,7 @@ extension Configuration {
             LDEXERFMT41CP\tS3 - ILS3 / Torrance\tNov 1, 2022\tLA
             LVKKYXS44H0VM\tS4 - ILS2 / Woodland Hills\tDec 1, 2022\tLA
             LVB2TEKH5W0WK\tS5 - IWA3 / Frederickson\tFeb 14, 2023\tSouth Seattle
-            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1,2023\tSouth Seattle
+            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1, 2023\tSouth Seattle
             """
         } else {
             storesText = """
@@ -26,7 +26,7 @@ extension Configuration {
             LVB2TEKH5W0WK\tS5 - IWA3 / Frederickson\tFeb 14, 2023\tSouth Seattle
             L208AAG3MR0A1\tS2 - ILS1 / Whittier\tSep 19, 2022\tLA
             LVKKYXS44H0VM\tS4 - ILS2 / Woodland Hills\tDec 1, 2022\tLA
-            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1,2023\tSouth Seattle
+            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1, 2023\tSouth Seattle
             """
         }
 

@@ -60,6 +60,7 @@ extension kip_dashboard {
             .group("locations")
             //.add(middleware: jwtAuthenticator)
             .get("list", use: locationsList)
+        
         app.router
             .group("api")
             //.add(middleware: jwtAuthenticator)
@@ -130,7 +131,7 @@ extension kip_dashboard {
                 startDate: recentStartDate,
                 endDate: recentEndDate)
             
-            request.logger.customTrace(allTimeSales)
+            // request.logger.customTrace(allTimeSales)
             var loc = try location.json()
             let brokenName = try loc["name"].string.unwrapped().split(separator: "/")
             loc["title"] = try JSON( brokenName.last.unwrapped())
@@ -213,19 +214,16 @@ extension kip_dashboard {
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
 
         let d = try await ProductMetrics.itemData(startDate: startDate, endDate: endDate)
-        let items = try await ProductMetrics.storeItems(locationId: nil, startDate: startDate, endDate: endDate)
+//        let items = try await ProductMetrics.storeItems(locationId: nil, startDate: startDate, endDate: endDate)
 
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
         numberFormatter.currencyCode = "USD"
         
-        // print((d.aggregations.orders.buckets.array ?? []).count)
         var array: [JSON] = (d.aggregations.orders.buckets.array ?? [])
         array.removeLast()
         array.removeFirst()
-        // print(array.count)
         let convertedBody = array.map { product -> JSON in
-           // print(product)
             var productJ = JSON()
             productJ["id"] = JSON(UUID().uuidString)
             productJ["name"] = JSON(Date(timeIntervalSince1970: Double((product.key.int ?? 0) / 1000)).formatted("M/dd"))
@@ -253,7 +251,6 @@ extension kip_dashboard {
                 mappings[key] = item
             }
         }
-//        print(mappings)
         let group = try mappings.values
             .sorted(by: { a, b in
                 a.displayName < b.displayName
@@ -278,9 +275,7 @@ extension kip_dashboard {
         
         var summary: [JSON] = [JSON]()
         if let withoutArray = withoutModification.aggregations.items.buckets.array,
-           let withArray = withModification.aggregations.items.buckets.array
-        {
-            // print(withArray)
+           let withArray = withModification.aggregations.items.buckets.array {
             for (index, with) in withArray.enumerated() {
                 let without = withoutArray[index]
                 let withCount = with.doc_count.int ?? 0
@@ -356,12 +351,12 @@ extension kip_dashboard {
                 productJ["cost"] = JSON("$\((product.cost.value.float ?? Float(product.cost.value.int ?? 0)) / 100)")
             }
             do {
-                print(product.objectId)
+//                print(product.objectId)
                 let productId = try product.objectId.hits.hits.array
                     .unwrapped("was not an array").first
                     .unwrapped("was empty")["_source"]
                 
-                print(productId)
+//                print(productId)
                 try productJ["isHot"] = JSON(OpenSearchMetrics.isHotItem(productId))
                 productJ["catalogId"] = productId.catalogId
             } catch {
@@ -442,8 +437,6 @@ extension kip_dashboard {
         )
     }
     
-    
-
     func locations2(request: HBRequest) async throws -> HBResponse {
            
            let stores = Configuration.locations(ordered: true)

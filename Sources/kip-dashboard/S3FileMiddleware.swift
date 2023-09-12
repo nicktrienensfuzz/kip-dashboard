@@ -25,9 +25,6 @@ public class S3FileMiddleware: HBMiddleware {
         self.folder = folder
         self.files = files
         self.s3 = s3
-//        Task {
-//            try await fetchFiles()
-//        }
     }
 
     public func apply(to request: Hummingbird.HBRequest, next: Hummingbird.HBResponder) -> NIOCore.EventLoopFuture<Hummingbird.HBResponse> {
@@ -49,7 +46,7 @@ public class S3FileMiddleware: HBMiddleware {
                     return request.failure(error)
                 }
 
-                request.logger.customTrace(request)
+//                request.logger.customTrace(request)
 
                 switch request.method {
                 case .GET:

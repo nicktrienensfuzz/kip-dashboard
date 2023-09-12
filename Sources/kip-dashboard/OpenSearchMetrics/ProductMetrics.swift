@@ -488,6 +488,7 @@ struct ProductMetrics {
         let result = try await makeRequest(query: query, index: index)
         return result
     }
+    
     static func storeOrderValue(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
 
         let locationFilter: String
@@ -560,8 +561,6 @@ struct ProductMetrics {
           }
         }
         """
-        
-        print(query)
         let result = try await makeRequest(query: query, index: index)
         return result
     }
@@ -638,7 +637,6 @@ struct ProductMetrics {
         }
         """
         let result = try await makeRequest(query: query, index: index)
-       // print(result)
         return result
     }
 
@@ -662,7 +660,6 @@ struct ProductMetrics {
             body: query.asData
         )
 
-        //print(endpoint.cURLRepresentation())
         let source = try await client.request(endpoint)
             .decode(type: JSON.self)
             .get()

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp -r dist/* ../public",
+    "build": "cp r.env.dev .env && vite build && cp -r dist/* ../public && cp r.env.local .env ",
     "lint": "eslint  --ext .ts,.tsx",
     "cypress": "cypress run",
     "test": "vitest",

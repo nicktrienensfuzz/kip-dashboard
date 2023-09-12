@@ -5,7 +5,7 @@ aws s3 sync public s3://zendat --profile fuzztival
 aws s3 sync public s3://zendat/kpiDashboard --profile fuzztival
 
 
-
+#make build_lambda
 make archive_lambda
 
 BUILD_ARCH=`uname -m`
