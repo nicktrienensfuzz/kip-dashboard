@@ -13,24 +13,6 @@ import JSON
 import JWTKit
 import Dependencies
 
-class Metric: Codable, CustomDebugStringConvertible {
-    init(name: String, displayName: String = "", labels: [JSON] = [], data: [JSON] = []) {
-        self.name = name
-        self.displayName = displayName
-        self.labels = labels
-        self.data = data
-    }
-    
-    var name: String
-    var displayName: String
-    var labels: [JSON]
-    var data: [JSON]
-    
-    var debugDescription: String {
-        "Metric: \(name)\nLabels: \(labels)\nData: \(data)"
-    }
-}
-
 extension kip_dashboard {
     struct DataRange: Codable {
         let start: Date
@@ -58,18 +40,18 @@ extension kip_dashboard {
         app.router
             .group("api")
             .group("locations")
-            //.add(middleware: jwtAuthenticator)
+        //.add(middleware: jwtAuthenticator)
             .get("list", use: locationsList)
         
         app.router
             .group("api")
-            //.add(middleware: jwtAuthenticator)
+        //.add(middleware: jwtAuthenticator)
             .get("locationsList", use: locationsList)
         
-//        app.router
-//            .group("api")
-//            //.add(middleware: jwtAuthenticator)
-//            .get("locations/list", use: locationsList)
+        //        app.router
+        //            .group("api")
+        //            //.add(middleware: jwtAuthenticator)
+        //            .get("locations/list", use: locationsList)
         
         app.router
             .group("api")
@@ -111,7 +93,7 @@ extension kip_dashboard {
         
         var AllLoc: [String: Float] = ["totalOrders": 0.0, "totalSales": 0.0]
         
-
+        
         var completeLocations = try await locations.asyncMap{ location -> JSON in
             
             let allTimeResults = try await ProductMetrics.storeOrders(
@@ -136,7 +118,7 @@ extension kip_dashboard {
             let brokenName = try loc["name"].string.unwrapped().split(separator: "/")
             loc["title"] = try JSON( brokenName.last.unwrapped())
             loc["storeCode"] = try JSON( brokenName.first.unwrapped())
-                                     
+            
             loc["regionId"] = try JSON(loc["region"].string.unwrapped() + "\n" + loc["id"].string.unwrapped())
             loc["totalOrders"] = allTimeResults.hits.total.value
             AllLoc["totalOrders"]! += allTimeResults.hits.total.value.float ?? Float(allTimeResults.hits.total.value.int ?? 0)
@@ -160,7 +142,7 @@ extension kip_dashboard {
         allLocJson["storeCode"] = JSON("")
         
         allLocJson["regionId"] = JSON( "$\(((AllLoc["totalSales"] ?? 0).rounded() / 100.0)  ) Sales")
-
+        
         allLocJson["totalOrdersAOV"] = JSON("")
         allLocJson["weeklyAverage"] = JSON("")
         allLocJson["itemAV"] = JSON("")
@@ -212,10 +194,10 @@ extension kip_dashboard {
     func itemTrends(request: HBRequest) async throws -> HBResponse {
         let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
-
+        
         let d = try await ProductMetrics.itemData(startDate: startDate, endDate: endDate)
-//        let items = try await ProductMetrics.storeItems(locationId: nil, startDate: startDate, endDate: endDate)
-
+        //        let items = try await ProductMetrics.storeItems(locationId: nil, startDate: startDate, endDate: endDate)
+        
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
         numberFormatter.currencyCode = "USD"
@@ -231,7 +213,7 @@ extension kip_dashboard {
             productJ["items"] = product.hits.hits.total.value
             
             productJ["averageItemValue"] = JSON( "\((( product.cost.value.float ?? 0).rounded() / 100.0)  )")
-
+            
             productJ["placedToCompletion"] = product.placedToCompletion.value
             productJ["claimedToCompletion"] = product.claimedToCompletion.value
             productJ["modifierCount"] = product.modifierCount.value
@@ -239,12 +221,12 @@ extension kip_dashboard {
             return productJ
         }
         
-        var mappings = [String: Metric]()
+        var mappings = [String: MetricGroup]()
         convertedBody.forEach { json in
             let keys = ["placedToCompletion", "modifierCount", "claimedToCompletion","averageItemValue"]
             keys.forEach { key in
                 let name = key // json.name.string ?? "unknown"
-                let item = mappings[key] ?? Metric(name: name)
+                let item = mappings[key] ?? MetricGroup(name: name)
                 item.displayName = key.trainCaseToTitleCase()
                 item.labels.append(json.name)
                 item.data.append(json[key])
@@ -266,6 +248,70 @@ extension kip_dashboard {
             status: .ok,
             headers: .init([("contentType", "application/json")]),
             body: .data(bothWays.toData())
+        )
+    }
+    
+    func itemModificationForChange(request: HBRequest) async throws -> HBResponse {
+        let change = try Configuration.trackableChanges().first.unwrapped()
+        
+        let withoutModificationBefore = try await ProductMetrics.itemModificationDataSummary(
+            startDate: change.date.rawStartOfDay - 3.weeks,
+            endDate: change.date.rawStartOfDay )
+        let withModificationBefore = try await ProductMetrics.itemModificationDataSummary(
+            modified: true,
+            startDate: change.date.rawStartOfDay - 3.weeks,
+            endDate: change.date.rawStartOfDay )
+        
+        let withoutModificationAfter = try await ProductMetrics.itemModificationDataSummary(
+            startDate: change.date.rawStartOfDay,
+            endDate: change.date.rawStartOfDay + 3.weeks)
+        let withModificationAfter = try await ProductMetrics.itemModificationDataSummary(
+            modified: true,
+            startDate: change.date.rawStartOfDay,
+            endDate: change.date.rawStartOfDay + 3.weeks)
+        
+        var summary: [JSON] = [JSON]()
+        try print(withoutModificationBefore.toString(outputFormatting: .prettyPrinted))
+        try  print(withModificationBefore.toString(outputFormatting: .prettyPrinted))
+//        if let withoutArray = withoutModificationBefore.aggregations.items.buckets.array,
+//           let withArray = withoutModificationBefore.aggregations.items.buckets.array {
+//            for (index, with) in withArray.enumerated() {
+//                let without = withoutArray[index]
+//                let withCount = with.doc_count.int ?? 0
+//                let withoutCount = without.doc_count.int ?? 0
+//
+//                summary.append(json { [
+//                    "total": JSON(withCount + withoutCount),
+//                    "percentModified": JSON(Double(withCount * 100) / Double(withCount + withoutCount)),
+//                    "nonModified": JSON(withoutCount),
+//                    "modified": JSON(withCount),
+//                    "date": JSON(Date(timeIntervalSince1970: Double((with.key.int ?? 0) / 1000)).formatted("M/dd/yyyy")),
+//                    "name": JSON(Date(timeIntervalSince1970: Double((with.key.int ?? 0) / 1000)).formatted("M/dd")),
+//                ] })
+//            }
+//        }
+//        summary.removeLast()
+//        summary.removeFirst()
+        
+        
+        let withCountBefore = withModificationBefore.hits.total.value.int ?? 0
+        let withoutCountBefore = withoutModificationBefore.hits.total.value.int ?? 0
+        let metric = SingleMetric(
+            displayName: "% of Items Modified Before",
+            data: JSON(Double(withCountBefore * 100) / Double(withCountBefore + withoutCountBefore))
+        )
+        
+        let withCountAfter = withModificationAfter.hits.total.value.int ?? 0
+        let withoutCountAfter = withoutModificationAfter.hits.total.value.int ?? 0
+        let metricAfter = SingleMetric(
+            displayName: "% of Items Modified After",
+            data: JSON(Double(withCountAfter * 100) / Double(withCountAfter + withoutCountAfter))
+        )
+        return try HBResponse(
+            status: .ok,
+            headers: .init([("contentType", "application/json")]),
+            body: .data(JSON(["change": change.json(),
+                              "metrics": [metric.json(), metricAfter.json()]]).toData())
         )
     }
     
@@ -294,7 +340,7 @@ extension kip_dashboard {
         summary.removeLast()
         summary.removeFirst()
         
-        let metric = Metric(
+        let metric = MetricGroup(
             name: "% of Items Modified",
             displayName: "% of Items Modified",
             labels: summary.map(\.name),
@@ -351,12 +397,12 @@ extension kip_dashboard {
                 productJ["cost"] = JSON("$\((product.cost.value.float ?? Float(product.cost.value.int ?? 0)) / 100)")
             }
             do {
-//                print(product.objectId)
+                //                print(product.objectId)
                 let productId = try product.objectId.hits.hits.array
                     .unwrapped("was not an array").first
                     .unwrapped("was empty")["_source"]
                 
-//                print(productId)
+                //                print(productId)
                 try productJ["isHot"] = JSON(OpenSearchMetrics.isHotItem(productId))
                 productJ["catalogId"] = productId.catalogId
             } catch {
@@ -406,12 +452,12 @@ extension kip_dashboard {
             return productJ
         }
         
-        var mappings = [String: Metric]()
+        var mappings = [String: MetricGroup]()
         convertedBody.forEach { json in
             let keys = ["itemCount", "orderCount", "sales", "placedToCompletion", "modifierCount", "avgItemCount"]
             keys.forEach { key in
                 let name = key // json.name.string ?? "unknown"
-                let item = mappings[key] ?? Metric(name: name)
+                let item = mappings[key] ?? MetricGroup(name: name)
                 item.displayName = key.trainCaseToTitleCase()
                 item.labels.append(json.name)
                 item.data.append(json[key])
@@ -438,40 +484,40 @@ extension kip_dashboard {
     }
     
     func locations2(request: HBRequest) async throws -> HBResponse {
-           
-           let stores = Configuration.locations(ordered: true)
-           let ranges = try Array(ranges().reversed())
-           let colors = ColorAssigner()
-           
-           let dataSets = try await ranges.asyncMap { range -> JSON in
-               let data = try await stores.asyncMap { location -> JSON in
-                   try await OpenSearchMetrics.ordersCount(
-                       startDate: range.start,
-                       endDate: range.end,
-                       locationId: location.id
-                   )
-               }
-               let color = colors.take()
-               return json {
-                   [
-                       "name": range.label,
-                       "backgroundColor": color,
-                       "borderColor": color,
-                       "data": data,
-                   ]
-               }
-           }
-           
-           let convertedBody = JSON {
-               [
-                   "labels": JSON(stores.map { JSON($0.name) }),
-                   "stores": dataSets,
-                   "dates": (try? ranges.json()) ?? JSON()
-               ]
-           }
-           
-           return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data(convertedBody.toData()))
-       }
+        
+        let stores = Configuration.locations(ordered: true)
+        let ranges = try Array(ranges().reversed())
+        let colors = ColorAssigner()
+        
+        let dataSets = try await ranges.asyncMap { range -> JSON in
+            let data = try await stores.asyncMap { location -> JSON in
+                try await OpenSearchMetrics.ordersCount(
+                    startDate: range.start,
+                    endDate: range.end,
+                    locationId: location.id
+                )
+            }
+            let color = colors.take()
+            return json {
+                [
+                    "name": range.label,
+                    "backgroundColor": color,
+                    "borderColor": color,
+                    "data": data,
+                ]
+            }
+        }
+        
+        let convertedBody = JSON {
+            [
+                "labels": JSON(stores.map { JSON($0.name) }),
+                "stores": dataSets,
+                "dates": (try? ranges.json()) ?? JSON()
+            ]
+        }
+        
+        return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data(convertedBody.toData()))
+    }
     
     func locations(request: HBRequest) async throws -> HBResponse {
         
@@ -585,7 +631,7 @@ extension kip_dashboard {
                 let body = try await OpenSearchMetrics.dataPrepForML(startDate: Date() - 20.days, endDate: Date() - 15.days)
                 
                 return try HBResponse(status: .ok, headers: .init([("contentType", "application/json")]), body: .data(body.toData()))
-        }
+            }
     }
 }
 

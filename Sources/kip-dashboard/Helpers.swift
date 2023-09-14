@@ -8,6 +8,13 @@
 import Foundation
 
 extension Configuration {
+    static func trackableChanges() throws -> [TrackableChange] {
+        return try [.init(date: "Sep 13, 2023".asDate.unwrapped(),
+                          name: "Swapping customize",
+                          description: "Swapping customize and add to order buttons on the PDP",
+                          expectations: "more customized orders")]
+        
+    }
     static func locations(ordered: Bool = false) -> [Location] {
         let storesText: String
         if !ordered {

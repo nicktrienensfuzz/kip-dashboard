@@ -102,6 +102,7 @@ struct kip_dashboard: AsyncParsableCommand {
         
         try app.start()
         
+        try print(Configuration.trackableChanges())
         
 //        app.router.get("svg") { _ in
 //            let qr = try! QRCode.encode(text: "https://github.com/EFPrefix/swift_qrcodejs/blob/main/Package.swift", ecl: .high)
@@ -123,8 +124,9 @@ struct kip_dashboard: AsyncParsableCommand {
         
         
         let r = HBRequest(path: "api/locationsList.json", application: app)
-        let res = try await locationsList(request: r)
-        try Path("locationJSON.json").write(res.body.asString.unwrapped())
+        let res = try await itemModificationForChange(request: r)
+        try Path("modifiersOverChange.json").write(res.body.asString.unwrapped())
+        
         //            let res = try await Exporter.products(request: r)
         //            try Path("products.csv").write(res.body.asString.unwrapped())
         //

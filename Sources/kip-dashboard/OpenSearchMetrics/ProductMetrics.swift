@@ -104,9 +104,10 @@ struct ProductMetrics {
         return result
     }
 
-    static func itemModificationData(modified: Bool = false) async throws -> JSON {
-        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
-        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
+    static func itemModificationData(modified: Bool = false, startDate startDateIn: Date? = nil, endDate endDateIn: Date? = nil) async throws -> JSON {
+        
+        var startDate = try startDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks)
+        var endDate =  try endDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay)
 
         let mustNot: String
         if modified {
@@ -163,6 +164,100 @@ struct ProductMetrics {
             }
           },
           "size": 0,
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {}
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  }
+                }
+              ],
+              "should": [],
+              \(mustNot)
+            }
+          }
+        }
+        """
+        let result = try await makeRequest(query: query, index: index)
+        return result
+    }
+
+    static func itemModificationDataSummary(modified: Bool = false, startDate startDateIn: Date? = nil, endDate endDateIn: Date? = nil) async throws -> JSON {
+        
+        var startDate = try startDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks)
+        var endDate =  try endDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay)
+
+        let mustNot: String
+        if modified {
+            mustNot = """
+                "must_not": [
+                        {
+                          "match_phrase": {
+                            "modifierCount": "0"
+                          }
+                        },
+                        {
+                          "match_phrase": {
+                            "locationId.keyword": "LKA2D3148RFDC"
+                          }
+                        },
+                        {
+                          "match_phrase": {
+                            "locationId.keyword": "LGFRKXEFPBDVA"
+                          }
+                        }
+                      ]
+            """
+        } else {
+            mustNot = """
+              "must_not": [
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LKA2D3148RFDC"
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LGFRKXEFPBDVA"
+                  }
+                }
+              ]
+            """
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*-lineitems-prod"
+        let query = """
+        {
+          "aggs": {
+            "modifierCountAverage": {
+              "avg": {
+                "field": "modifierCount"
+              }
+            }
+          },
+            "size": 0,
+            "track_total_hits": true,
+            "stored_fields": [
+              "*"
+            ],
+            "script_fields": {},
           "query": {
             "bool": {
               "must": [],
