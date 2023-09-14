@@ -425,7 +425,7 @@ extension kip_dashboard {
             productJ["placedToCompletion"] = product.placedToCompletion.value
             productJ["modifierCount"] = product.modifierCount.value
             productJ["orderCount"] = product.doc_count
-            productJ["averageOrderValue"] = product.averageOrderValue.value
+            productJ["averageOrderValue"] = JSON("\((product.averageOrderValue.value.float ?? Float(product.averageOrderValue.value.int ?? 0)) / 100)")
             productJ["sales"] = JSON("\((product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0)) / 100)")
             return productJ
         }
@@ -563,15 +563,31 @@ extension kip_dashboard {
         let remove = labels.first!
         // print("date to exclude: \(remove)")
         labels = Array(labels.dropFirst())
-        
+        print( labels.count)
         let stores = Configuration.locations().map { location -> JSON in
-            let data = r.filter { $0.locationId == location.id && $0.dateValue != remove }.map(\.count)
+            var data = r.filter { $0.locationId == location.id && $0.dateValue != remove }
+//            if location.name ==  "S6 - IWA2 / Puyallup" {
+                if data.count != labels.count {
+                    print( labels)
+                    data = labels.map { date -> OrdersByDayObj in
+                        print(date)
+                        if let dateValue = data.first( where: { $0.dateValue == date } ){
+                            return dateValue
+                        } else {
+                            return OrdersByDayObj(count: 0, timestamp: Date(), locationId: "here")
+                        }
+                    }
+                    print( data)
+
+//                }
+                
+            }
             return json {
                 [
                     "name": location.name,
                     "backgroundColor": location.colorString,
                     "borderColor": location.colorString,
-                    "data": data.map { "\($0)" },
+                    "data": data.map { "\($0.count)" },
                 ]
             }
         }

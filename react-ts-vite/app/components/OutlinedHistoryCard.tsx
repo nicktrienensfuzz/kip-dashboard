@@ -59,10 +59,24 @@ const OutlinedHistoryCard: React.FunctionComponent<
     });
     value = formatter.format(object.data[object.data.length - 1]);
   } else if (
+    object.displayName === "Average Order Value" ||
+    object.displayName === "Average Item Value"
+  ) {
+    const formatter = new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      maximumFractionDigits: 2,
+    });
+    value = formatter.format(object.data[object.data.length - 1]);
+  } else if (
+    object.displayName === "Placed To Completion" ||
+    object.displayName === "Claimed To Completion"
+  ) {
+    value = object.data[object.data.length - 1].toFixed(2) + "s";
+  } else if (
     object.displayName === "Placed To Completion" ||
     object.displayName === "Modifier Count" ||
     object.displayName === "% of Items Modified" ||
-    object.displayName === "Claimed To Completion" ||
     object.displayName === "Avg Item Count"
   ) {
     value = object.data[object.data.length - 1].toFixed(2);
