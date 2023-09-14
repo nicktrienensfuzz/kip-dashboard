@@ -13,7 +13,7 @@ struct ProductMetrics {
     static func orderData() async throws -> JSON {
         let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
-
+        
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -31,6 +31,11 @@ struct ProductMetrics {
                 "aggs": {
                 "totalCost": {
                   "sum": {
+                    "field": "totalCost"
+                  }
+                },
+                "averageOrderValue": {
+                  "avg": {
                     "field": "totalCost"
                   }
                 },
@@ -103,15 +108,18 @@ struct ProductMetrics {
         let result = try await makeRequest(query: query, index: index)
         return result
     }
-
-    static func itemModificationData(modified: Bool = false, startDate startDateIn: Date? = nil, endDate endDateIn: Date? = nil) async throws -> JSON {
-        
-        var startDate = try startDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks)
-        var endDate =  try endDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay)
-
-        let mustNot: String
-        if modified {
-            mustNot = """
+    
+    static func itemModificationData(
+        modified: Bool = false,
+        startDate startDateIn: Date? = nil,
+        endDate endDateIn: Date? = nil) async throws -> JSON {
+            
+            let startDate = try startDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks)
+            let endDate =  try endDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay)
+            
+            let mustNot: String
+            if modified {
+                mustNot = """
                 "must_not": [
                         {
                           "match_phrase": {
@@ -130,8 +138,8 @@ struct ProductMetrics {
                         }
                       ]
             """
-        } else {
-            mustNot = """
+            } else {
+                mustNot = """
               "must_not": [
                 {
                   "match_phrase": {
@@ -145,13 +153,13 @@ struct ProductMetrics {
                 }
               ]
             """
-        }
-
-        let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
-        let index = "*-lineitems-prod"
-        let query = """
+            }
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+            let index = "*-lineitems-prod"
+            let query = """
         {
           "aggs": {
             "items": {
@@ -192,15 +200,15 @@ struct ProductMetrics {
           }
         }
         """
-        let result = try await makeRequest(query: query, index: index)
-        return result
-    }
-
+            let result = try await makeRequest(query: query, index: index)
+            return result
+        }
+    
     static func itemModificationDataSummary(modified: Bool = false, startDate startDateIn: Date? = nil, endDate endDateIn: Date? = nil) async throws -> JSON {
         
-        var startDate = try startDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks)
-        var endDate =  try endDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay)
-
+        let startDate = try startDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks)
+        let endDate =  try endDateIn ?? (Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay)
+        
         let mustNot: String
         if modified {
             mustNot = """
@@ -238,7 +246,7 @@ struct ProductMetrics {
               ]
             """
         }
-
+        
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -289,11 +297,11 @@ struct ProductMetrics {
         let result = try await makeRequest(query: query, index: index)
         return result
     }
-
+    
     static func itemData( startDate: Date, endDate: Date) async throws -> JSON {
-//        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
-//        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
-
+        //        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
+        //        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
+        
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -388,11 +396,11 @@ struct ProductMetrics {
         }
         return result
     }
-
+    
     static func productTable() async throws -> JSON {
         let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
         let endDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay
-
+        
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -496,7 +504,7 @@ struct ProductMetrics {
     }
     
     static func storeOrders(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
-
+        
         let locationFilter: String
         if let locationId {
             locationFilter = """
@@ -585,7 +593,7 @@ struct ProductMetrics {
     }
     
     static func storeOrderValue(locationId: String?, startDate: Date, endDate: Date = Date()) async throws -> JSON {
-
+        
         let locationFilter: String
         if let locationId {
             locationFilter = """
@@ -734,7 +742,7 @@ struct ProductMetrics {
         let result = try await makeRequest(query: query, index: index)
         return result
     }
-
+    
     static func makeRequest(query: String, index: String) async throws -> JSON {
         @Dependency(\.configuration) var config
         @Dependency(\.httpClient) var client
@@ -742,9 +750,9 @@ struct ProductMetrics {
         guard let loginData = loginString.data(using: String.Encoding.utf8) else {
             throw ServiceError("unable to get username and password")
         }
-
+        
         let base64LoginString = loginData.base64EncodedString()
-
+        
         let endpoint = Endpoint(
             method: .POST,
             path: config.openSearchEndpoint + "/\(index)/_search",
@@ -754,7 +762,7 @@ struct ProductMetrics {
             ],
             body: query.asData
         )
-
+        
         let source = try await client.request(endpoint)
             .decode(type: JSON.self)
             .get()

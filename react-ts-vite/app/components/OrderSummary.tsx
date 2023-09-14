@@ -61,7 +61,7 @@ export default function OrderSummary() {
           <br />
           <Stack direction="row" spacing={2}>
             <OutlinedHistoryCard object={metricData[5]} />
-            <OutlinedHistoryCard object={metricData[3]} />
+            <OutlinedHistoryCard object={metricData[6]} />
             <OutlinedHistoryCard object={metricData[1]} />
           </Stack>
           <br />
@@ -71,14 +71,16 @@ export default function OrderSummary() {
             Items Overview By Weeks
           </Typography>
           <Stack direction="row" spacing={2}>
-            {/* <OutlinedHistoryCard object={itemData[0]} /> */}
             <OutlinedHistoryCard object={itemData[2]} />
             <OutlinedHistoryCard object={itemData[1]} />
             <OutlinedHistoryCard object={itemModicationData} />
           </Stack>
-
+          <br />
+          <br />
+          <br />
           <Stack direction="row" spacing={2}>
             <OutlinedHistoryCard object={itemData[3]} />
+            <OutlinedHistoryCard object={itemData[0]} />
           </Stack>
         </Stack>
       )}

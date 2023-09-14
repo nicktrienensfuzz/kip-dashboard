@@ -33,25 +33,26 @@ extension kip_dashboard {
         
         app.router
             .group("api")
-        //.add(middleware: jwtAuthenticator)
+            .group("change")
+            .add(middleware: jwtAuthenticator)
+            .get("/itemModification.json", use: itemModificationForChange)
+        
+        app.router
+            .group("api")
+            //.add(middleware: jwtAuthenticator)
             .get("me.json", use: me)
         
         
         app.router
             .group("api")
             .group("locations")
-        //.add(middleware: jwtAuthenticator)
+            .add(middleware: jwtAuthenticator)
             .get("list", use: locationsList)
         
         app.router
             .group("api")
-        //.add(middleware: jwtAuthenticator)
+            .add(middleware: jwtAuthenticator)
             .get("locationsList", use: locationsList)
-        
-        //        app.router
-        //            .group("api")
-        //            //.add(middleware: jwtAuthenticator)
-        //            .get("locations/list", use: locationsList)
         
         app.router
             .group("api")
@@ -141,12 +142,14 @@ extension kip_dashboard {
         allLocJson["title"] = JSON("All")
         allLocJson["storeCode"] = JSON("")
         
-        allLocJson["regionId"] = JSON( "$\(((AllLoc["totalSales"] ?? 0).rounded() / 100.0)  ) Sales")
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        allLocJson["regionId"] = JSON( "Totals")
         
         allLocJson["totalOrdersAOV"] = JSON("")
         allLocJson["weeklyAverage"] = JSON("")
         allLocJson["itemAV"] = JSON("")
-        allLocJson["weeklyAverage"] = JSON("")
+        allLocJson["weeklyAverage"] = JSON( "\(formatter.string( for: (AllLoc["totalSales"] ?? 0).rounded() / 100.0) ?? "$failed") Sales")
         allLocJson["2MonthOrders"] = JSON("")
         allLocJson["2MonthWeeklyAverage"] = JSON("")
         allLocJson["2MonthOrdersAOV"] = JSON("")
@@ -270,30 +273,9 @@ extension kip_dashboard {
             startDate: change.date.rawStartOfDay,
             endDate: change.date.rawStartOfDay + 3.weeks)
         
-        var summary: [JSON] = [JSON]()
         try print(withoutModificationBefore.toString(outputFormatting: .prettyPrinted))
-        try  print(withModificationBefore.toString(outputFormatting: .prettyPrinted))
-//        if let withoutArray = withoutModificationBefore.aggregations.items.buckets.array,
-//           let withArray = withoutModificationBefore.aggregations.items.buckets.array {
-//            for (index, with) in withArray.enumerated() {
-//                let without = withoutArray[index]
-//                let withCount = with.doc_count.int ?? 0
-//                let withoutCount = without.doc_count.int ?? 0
-//
-//                summary.append(json { [
-//                    "total": JSON(withCount + withoutCount),
-//                    "percentModified": JSON(Double(withCount * 100) / Double(withCount + withoutCount)),
-//                    "nonModified": JSON(withoutCount),
-//                    "modified": JSON(withCount),
-//                    "date": JSON(Date(timeIntervalSince1970: Double((with.key.int ?? 0) / 1000)).formatted("M/dd/yyyy")),
-//                    "name": JSON(Date(timeIntervalSince1970: Double((with.key.int ?? 0) / 1000)).formatted("M/dd")),
-//                ] })
-//            }
-//        }
-//        summary.removeLast()
-//        summary.removeFirst()
-        
-        
+        try print(withModificationBefore.toString(outputFormatting: .prettyPrinted))
+
         let withCountBefore = withModificationBefore.hits.total.value.int ?? 0
         let withoutCountBefore = withoutModificationBefore.hits.total.value.int ?? 0
         let metric = SingleMetric(
@@ -422,11 +404,7 @@ extension kip_dashboard {
     }
     
     func orderSalesTrend(request: HBRequest) async throws -> HBResponse {
-        
-        
         let d = try await ProductMetrics.orderData()
-        //            print(d.aggregations.orders.buckets)
-        // print(d.Dates)
         
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .currency
@@ -447,14 +425,14 @@ extension kip_dashboard {
             productJ["placedToCompletion"] = product.placedToCompletion.value
             productJ["modifierCount"] = product.modifierCount.value
             productJ["orderCount"] = product.doc_count
-            
+            productJ["averageOrderValue"] = product.averageOrderValue.value
             productJ["sales"] = JSON("\((product.totalCost.value.float ?? Float(product.totalCost.value.int ?? 0)) / 100)")
             return productJ
         }
         
         var mappings = [String: MetricGroup]()
         convertedBody.forEach { json in
-            let keys = ["itemCount", "orderCount", "sales", "placedToCompletion", "modifierCount", "avgItemCount"]
+            let keys = ["itemCount", "orderCount", "sales", "placedToCompletion", "modifierCount", "avgItemCount", "averageOrderValue"]
             keys.forEach { key in
                 let name = key // json.name.string ?? "unknown"
                 let item = mappings[key] ?? MetricGroup(name: name)

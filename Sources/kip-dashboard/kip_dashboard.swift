@@ -127,6 +127,10 @@ struct kip_dashboard: AsyncParsableCommand {
         let res = try await itemModificationForChange(request: r)
         try Path("modifiersOverChange.json").write(res.body.asString.unwrapped())
         
+        
+        let res2 = try await orderSalesTrend(request: r)
+        try Path("orderSalesTrend.json").write(res2.body.asString.unwrapped())
+        
         //            let res = try await Exporter.products(request: r)
         //            try Path("products.csv").write(res.body.asString.unwrapped())
         //
