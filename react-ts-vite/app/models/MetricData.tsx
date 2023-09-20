@@ -13,3 +13,31 @@ export interface MetricData {
   name: string;
   displayName: string;
 }
+
+export interface ChangeMetricResponse {
+  change: TrackableChange;
+  metrics: SingleMetric[];
+}
+
+export interface SingleMetric {
+  displayName: string;
+  data: any;
+  debugDescription?: string;
+}
+
+/**
+ Documentation
+ `TrackableChange` interface describes changes to objects.
+ */
+export interface TrackableChange {
+  /** Date of the change */
+  date: Date;
+  /** Name of the thing that was changed */
+  name: String;
+  /** Description of the change */
+  description: String;
+  /** Expectation from the change */
+  expectations: String;
+  /** URL reference for more information on the change. */
+  referenceURL?: String;
+}

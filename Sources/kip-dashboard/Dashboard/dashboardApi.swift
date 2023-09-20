@@ -35,7 +35,7 @@ extension kip_dashboard {
             .group("api")
             .group("change")
             .add(middleware: jwtAuthenticator)
-            .get("/itemModification.json", use: itemModificationForChange)
+            .get("itemModification.json", use: itemModificationForChange)
         
         app.router
             .group("api")
@@ -273,20 +273,20 @@ extension kip_dashboard {
             startDate: change.date.rawStartOfDay,
             endDate: change.date.rawStartOfDay + 3.weeks)
         
-        try print(withoutModificationBefore.toString(outputFormatting: .prettyPrinted))
-        try print(withModificationBefore.toString(outputFormatting: .prettyPrinted))
+//        try print(withoutModificationBefore.toString(outputFormatting: .prettyPrinted))
+//        try print(withModificationBefore.toString(outputFormatting: .prettyPrinted))
 
         let withCountBefore = withModificationBefore.hits.total.value.int ?? 0
         let withoutCountBefore = withoutModificationBefore.hits.total.value.int ?? 0
         let metric = SingleMetric(
-            displayName: "% of Items Modified Before",
+            displayName: "% Items Modified Before",
             data: JSON(Double(withCountBefore * 100) / Double(withCountBefore + withoutCountBefore))
         )
         
         let withCountAfter = withModificationAfter.hits.total.value.int ?? 0
         let withoutCountAfter = withoutModificationAfter.hits.total.value.int ?? 0
         let metricAfter = SingleMetric(
-            displayName: "% of Items Modified After",
+            displayName: "% Items Modified After",
             data: JSON(Double(withCountAfter * 100) / Double(withCountAfter + withoutCountAfter))
         )
         return try HBResponse(

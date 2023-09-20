@@ -11,11 +11,15 @@ import {
 interface OutlinedCardProps {
   title: string;
   value: string;
+  type: string;
+  referenceURL: string|null;
 }
 
 const OutlinedCard: React.FunctionComponent<OutlinedCardProps> = ({
   title,
   value,
+  type,
+  referenceURL
 }) => {
   return (
     <Box sx={{ minWidth: 210, maxWidth: 305, minHeight: 280, height: "200px" }}>
@@ -24,13 +28,23 @@ const OutlinedCard: React.FunctionComponent<OutlinedCardProps> = ({
           <Typography variant="h5" color="text.secondary" gutterBottom>
             {title}
           </Typography>
-          <Typography variant="h4" color="text.secondary" gutterBottom>
-            {value}
-          </Typography>
+          {type === "percent" ? (
+            <Typography variant="h4" color="text.secondary" gutterBottom>
+              {value.toFixed(2)}%
+            </Typography>
+          ) : (
+            <Typography variant="h4" color="text.secondary" gutterBottom>
+              {value}
+            </Typography>
+          )}
         </CardContent>
-        <CardActions>
-          <Button size="small">Explore</Button>
-        </CardActions>
+        {referenceURL ? (
+          <CardActions>
+            <Button size="small" ><a href={referenceURL} target="_blank" >View</a></Button>
+          </CardActions>
+        ) : (
+          <></>
+        )}
       </Card>
     </Box>
   );

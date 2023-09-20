@@ -3,6 +3,7 @@ import { Stack, Typography } from "@mui/material";
 import axios from "axios";
 import OutlinedHistoryCard from "./OutlinedHistoryCard.js";
 import { MetricData } from "../models/MetricData.js";
+import ChangeSummary from "./ChangeSummary.js";
 
 export default function OrderSummary() {
   const [metricData, setMetricData] = React.useState(Array<MetricData>);
@@ -82,6 +83,8 @@ export default function OrderSummary() {
             <OutlinedHistoryCard object={itemData[3]} />
             <OutlinedHistoryCard object={itemData[0]} />
           </Stack>
+
+          <ChangeSummary />
         </Stack>
       )}
     </>

@@ -12,7 +12,8 @@ extension Configuration {
         return try [.init(date: "Sep 13, 2023".asDate.unwrapped(),
                           name: "Swapping customize",
                           description: "Swapping customize and add to order buttons on the PDP",
-                          expectations: "more customized orders")]
+                          expectations: "More customized items, after Sep 13, 2023",
+                         referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/PDP%20-%20Base%20%28B%29.png")]
         
     }
     static func locations(ordered: Bool = false) -> [Location] {
