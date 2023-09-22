@@ -10,9 +10,134 @@ import Foundation
 import JSON
 
 struct ProductMetrics {
-    static func orderData() async throws -> JSON {
-        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
-        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
+    static func averageOrderData(
+        startDate inStartDate: Date? = nil,
+                          endDate inEndDate: Date? = nil) async throws -> JSON {
+        let startDate: Date
+        let endDate: Date
+        if let inStartDate {
+            startDate = inStartDate
+        } else {
+            startDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .backward)
+                .unwrapped()
+                .rawStartOfDay - 12.weeks
+        }
+        if let inEndDate {
+            endDate = inEndDate
+        } else {
+            endDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .forward)
+                .unwrapped()
+                .startOfDay
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*orders-prod"
+        let query = """
+        {
+          "aggs": {
+            "totalCost": {
+              "sum": {
+                "field": "totalCost"
+              }
+            },
+            "averageOrderValue": {
+              "avg": {
+                "field": "totalCost"
+              }
+            },
+            "itemCount": {
+              "sum": {
+                "field": "itemCount"
+              }
+            },
+            "avgItemCount": {
+              "avg": {
+                "field": "itemCount"
+              }
+            },
+            "placedToCompletion": {
+              "avg": {
+                "field": "placedToCompletion"
+              }
+            },
+            "modifierCount": {
+              "avg": {
+                "field": "lineItems.modifierCount"
+              }
+            }
+          },
+          "size": 0,
+          "stored_fields": [
+            "*"
+          ],
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {
+                    
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  }
+                }
+              ],
+              "should": [],
+              "must_not": [
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LKA2D3148RFDC"
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LGFRKXEFPBDVA"
+                  }
+                }
+              ]
+            }
+          }
+        }
+        """
+        let result = try await makeRequest(query: query, index: index)
+        return result
+    }
+    static func orderData(startDate inStartDate: Date? = nil,
+                          endDate inEndDate: Date? = nil) async throws -> JSON {
+        let startDate: Date
+        let endDate: Date
+        if let inStartDate {
+            startDate = inStartDate
+        } else {
+            startDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .backward)
+                .unwrapped()
+                .rawStartOfDay - 12.weeks
+        }
+        if let inEndDate {
+            endDate = inEndDate
+        } else {
+            endDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .forward)
+                .unwrapped()
+                .startOfDay
+        }
         
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
@@ -28,7 +153,7 @@ struct ProductMetrics {
                 "time_zone": "America/Los_Angeles",
                 "min_doc_count": 1
               },
-                "aggs": {
+              "aggs": {
                 "totalCost": {
                   "sum": {
                     "field": "totalCost"

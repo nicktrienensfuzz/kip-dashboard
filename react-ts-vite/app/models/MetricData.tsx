@@ -16,7 +16,18 @@ export interface MetricData {
 
 export interface ChangeMetricResponse {
   change: TrackableChange;
-  metrics: SingleMetric[];
+  metrics: TrackedChangeMetric[];
+}
+
+export interface TrackedChangeMetric {
+  dataAfter: number;
+  dataBefore: number;
+  dateRangeAfter: string[];
+  dateRangeBefore: string[];
+  daysIntervalAfter: number;
+  daysIntervalBefore: number;
+  displayName: string;
+  unit: string;
 }
 
 export interface SingleMetric {

@@ -38,7 +38,7 @@ const StoreOrdersLineGraph: React.FunctionComponent<
 
       setLoading(false);
     } catch (error) {
-      alert(`Error fetching data: ${error}`);
+      console.log(`Error fetching data: ${error}`);
     }
   }
 

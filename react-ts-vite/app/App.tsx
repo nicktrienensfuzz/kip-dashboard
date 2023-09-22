@@ -124,7 +124,7 @@ export default function App() {
         setLoading(false);
       } catch (error) {
         // console.log(error);
-        alert(`Error fetching data: ${error}`);
+        console.log(`Error fetching data: ${error}`);
       }
     }
     console.log("Token effect: ", jwt);

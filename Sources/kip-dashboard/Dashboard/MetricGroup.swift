@@ -51,20 +51,74 @@ class SingleMetric: Codable, CustomDebugStringConvertible {
     /// - Parameters:
     ///   - displayName: A human readable name for the single metric.
     ///   - data: The actual data of single metric as JSON.
-    init(displayName: String = "", data: JSON) {
+    init(displayName: String = "", data: JSON, unit: String? = nil) {
         self.displayName = displayName
         self.data = data
+        self.unit = unit
     }
     
     /// A human readable name for the single metric.
     var displayName: String
+    
+    /// A human readable unit.
+    var unit: String?
     
     /// The actual data of single metric as JSON.
     var data: JSON
     
     /// Debug description of the `SingleMetric` for better readability during development and debugging.
     var debugDescription: String {
-        return "SingleMetric: \(displayName)\nData: \(data)"
+        return "SingleMetric: \(displayName)\nData: \(data)\(unit ?? "")"
+    }
+}
+
+
+
+/// `SingleMetric` class encapsulates a single metric.
+/// It conforms to both `Codable` and `CustomDebugStringConvertible` protocols.
+class TrackedChangeMetric: Codable, CustomDebugStringConvertible {
+    
+    /// Initialize `SingleMetric` with necessary parameters.
+    /// - Parameters:
+    ///   - displayName: A human readable name for the single metric.
+    ///   - data: The actual data of single metric as JSON.
+    init(displayName: String,
+         dataBefore: JSON,
+         dataAfter: JSON,
+         unit: String? = nil,
+         dateRangeBefore: ClosedRange<Date>,
+        dateRangeAfter: ClosedRange<Date>) {
+        
+        self.displayName = displayName
+        self.dataBefore = dataBefore
+        self.dataAfter = dataAfter
+        self.unit = unit
+        self.dateRangeBefore = dateRangeBefore
+        daysIntervalBefore = dateRangeBefore.numberOfDaysInRange()
+        self.dateRangeAfter = dateRangeAfter
+        daysIntervalAfter = dateRangeAfter.numberOfDaysInRange()
+        
+    }
+    
+    /// A human readable name for the single metric.
+    var displayName: String
+    
+    /// A human readable unit.
+    var unit: String?
+    
+    /// The actual data of single metric as JSON.
+    var dataBefore: JSON
+    
+    /// The actual data of single metric as JSON.
+    var dataAfter: JSON
+    
+    let dateRangeBefore: ClosedRange<Date>
+    let daysIntervalBefore: Double
+    var dateRangeAfter: ClosedRange<Date>
+    let daysIntervalAfter: Double
+    /// Debug description of the `SingleMetric` for better readability during development and debugging.
+    var debugDescription: String {
+        return "SingleMetric: \(displayName)\nData: [\(dataBefore), \(dataAfter)] \(unit ?? "")"
     }
 }
 

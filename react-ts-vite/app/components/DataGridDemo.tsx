@@ -58,7 +58,7 @@ export default function DataGridDemo() {
       setChartData(months);
       setLoading(false);
     } catch (error) {
-      alert(`Error fetching data: ${error}`);
+      console.log(`Error fetching data: ${error}`);
     }
   }
 

@@ -4,6 +4,7 @@ import axios from "axios";
 import OutlinedHistoryCard from "./OutlinedHistoryCard.js";
 import { MetricData } from "../models/MetricData.js";
 import ChangeSummary from "./ChangeSummary.js";
+import ChangeSummaryKDS from "./ChangeSummaryKDS.js";
 
 export default function OrderSummary() {
   const [metricData, setMetricData] = React.useState(Array<MetricData>);
@@ -84,7 +85,9 @@ export default function OrderSummary() {
             <OutlinedHistoryCard object={itemData[0]} />
           </Stack>
 
+          <Typography variant="h3" sx={{ marginTop: "50px" }}>Change Analysis</Typography>
           <ChangeSummary />
+          <ChangeSummaryKDS />
         </Stack>
       )}
     </>

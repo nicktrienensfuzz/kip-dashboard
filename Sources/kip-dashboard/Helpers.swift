@@ -9,11 +9,20 @@ import Foundation
 
 extension Configuration {
     static func trackableChanges() throws -> [TrackableChange] {
-        return try [.init(date: "Sep 13, 2023".asDate.unwrapped(),
-                          name: "Swapping customize",
-                          description: "Swapping customize and add to order buttons on the PDP",
-                          expectations: "More customized items, after Sep 13, 2023",
-                         referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/PDP%20-%20Base%20%28B%29.png")]
+        return try [
+            .init(
+                date: "Sep 13, 2023".asDate.unwrapped(),
+                name: "Swapping customize",
+                description: "Swapping customize and add to order buttons on the PDP",
+                expectations: "More customized items, after Sep 13, 2023",
+                referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/PDP%20-%20Base%20%28B%29.png"),
+            .init(
+                date: "May 23, 2023".asDate.unwrapped(),
+                name: "KDS Make Instructions",
+                description: "KDS Make instructions displayed complete.",
+                expectations: "Faster make times, faster training of new associates Released May 23rd",
+                referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/",
+                metrics: ["placedToCompletion", "averageOrderValue"])]
         
     }
     static func locations(ordered: Bool = false) -> [Location] {
@@ -37,7 +46,7 @@ extension Configuration {
             LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1, 2023\tSouth Seattle
             """
         }
-
+        
         let rows = storesText.split(separator: "\n")
         let body = rows.enumerated().compactMap { index, row in
             let fields = row.split(separator: "\t")

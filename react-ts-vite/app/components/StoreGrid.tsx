@@ -90,7 +90,7 @@ export default function DataGridDemo() {
       }
       console.log(months);
     } catch (error) {
-      alert(`Error fetching data: ${error}`);
+      console.log(`Error fetching data: ${error}`);
     }
   }
 

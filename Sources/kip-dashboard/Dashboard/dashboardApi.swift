@@ -39,7 +39,13 @@ extension kip_dashboard {
         
         app.router
             .group("api")
-            //.add(middleware: jwtAuthenticator)
+            .group("change")
+            .add(middleware: jwtAuthenticator)
+            .get("makeInstructions.json", use: orderSalesTrendForChange)
+        
+        app.router
+            .group("api")
+        //.add(middleware: jwtAuthenticator)
             .get("me.json", use: me)
         
         
@@ -257,43 +263,74 @@ extension kip_dashboard {
     func itemModificationForChange(request: HBRequest) async throws -> HBResponse {
         let change = try Configuration.trackableChanges().first.unwrapped()
         
+        let startDate = change.date.rawStartOfDay - 3.weeks
+        let inflectionDate = change.date.rawStartOfDay
+        let endDate = change.date.rawStartOfDay + 3.weeks
+
+        
         let withoutModificationBefore = try await ProductMetrics.itemModificationDataSummary(
-            startDate: change.date.rawStartOfDay - 3.weeks,
+            startDate: startDate,
             endDate: change.date.rawStartOfDay )
         let withModificationBefore = try await ProductMetrics.itemModificationDataSummary(
             modified: true,
-            startDate: change.date.rawStartOfDay - 3.weeks,
+            startDate: startDate,
             endDate: change.date.rawStartOfDay )
         
         let withoutModificationAfter = try await ProductMetrics.itemModificationDataSummary(
             startDate: change.date.rawStartOfDay,
-            endDate: change.date.rawStartOfDay + 3.weeks)
+            endDate: endDate)
         let withModificationAfter = try await ProductMetrics.itemModificationDataSummary(
             modified: true,
             startDate: change.date.rawStartOfDay,
-            endDate: change.date.rawStartOfDay + 3.weeks)
+            endDate: endDate)
         
-//        try print(withoutModificationBefore.toString(outputFormatting: .prettyPrinted))
-//        try print(withModificationBefore.toString(outputFormatting: .prettyPrinted))
-
         let withCountBefore = withModificationBefore.hits.total.value.int ?? 0
         let withoutCountBefore = withoutModificationBefore.hits.total.value.int ?? 0
-        let metric = SingleMetric(
-            displayName: "% Items Modified Before",
-            data: JSON(Double(withCountBefore * 100) / Double(withCountBefore + withoutCountBefore))
-        )
         
         let withCountAfter = withModificationAfter.hits.total.value.int ?? 0
         let withoutCountAfter = withoutModificationAfter.hits.total.value.int ?? 0
-        let metricAfter = SingleMetric(
-            displayName: "% Items Modified After",
-            data: JSON(Double(withCountAfter * 100) / Double(withCountAfter + withoutCountAfter))
+        
+        let metricCombined = TrackedChangeMetric(
+            displayName: "% Items Modified",
+            dataBefore: JSON(Double(withCountBefore * 100) / Double(withCountBefore + withoutCountBefore)),
+            dataAfter: JSON(Double(withCountAfter * 100) / Double(withCountAfter + withoutCountAfter)),
+            unit: "%",
+            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded
+            
         )
+        
+        let dBefore = try await ProductMetrics.averageOrderData(startDate: startDate, endDate: inflectionDate)
+        
+        let dAfter = try await ProductMetrics.averageOrderData(startDate: inflectionDate, endDate: endDate )
+        
+        let metricaovt = TrackedChangeMetric(
+            displayName: "averageOrderValue".trainCaseToSentenceCase(),
+            dataBefore: dBefore.aggregations.averageOrderValue.value.asDollars,
+            dataAfter: dAfter.aggregations.averageOrderValue.value.asDollars,
+            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded
+        )
+        
+        let metricMakeTimeT = TrackedChangeMetric(
+            displayName: "placedToCompletion".trainCaseToSentenceCase(),
+            dataBefore: dBefore.aggregations.placedToCompletion.value, dataAfter: dAfter.aggregations.placedToCompletion.value,
+            unit: "Seconds",
+            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
+        
+        
         return try HBResponse(
             status: .ok,
             headers: .init([("contentType", "application/json")]),
             body: .data(JSON(["change": change.json(),
-                              "metrics": [metric.json(), metricAfter.json()]]).toData())
+                              "metrics": [
+                                          JSON(data: metricCombined.toData()),
+                                          JSON(data: metricaovt.toData()),
+                                          JSON(data: metricMakeTimeT.toData())
+                                         ]
+                             ]
+                            ).toData())
         )
     }
     
@@ -461,6 +498,46 @@ extension kip_dashboard {
         )
     }
     
+    func orderSalesTrendForChange(request: HBRequest) async throws -> HBResponse {
+        let changes = try Configuration.trackableChanges()
+        guard changes.count == 2 else {
+            throw ServiceError("failed to find the second change")
+        }
+        let change = changes[1]
+        
+        let startDate = change.date.rawStartOfDay - 15.weeks
+        let inflectionDate = change.date.rawStartOfDay
+        let endDate = change.date.rawStartOfDay + 15.weeks
+        
+        let dBefore = try await ProductMetrics.averageOrderData(startDate: startDate, endDate: inflectionDate)
+        
+        let dAfter = try await ProductMetrics.averageOrderData(startDate: inflectionDate, endDate: endDate )
+        
+        let metricaovt = TrackedChangeMetric(
+            displayName: "averageOrderValue".trainCaseToSentenceCase(),
+            dataBefore: dBefore.aggregations.averageOrderValue.value.asDollars, dataAfter: dAfter.aggregations.averageOrderValue.value.asDollars,
+            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded
+        )
+        
+        let metricMakeTimeT = TrackedChangeMetric(
+            displayName: "placedToCompletion".trainCaseToSentenceCase(),
+            dataBefore: dBefore.aggregations.placedToCompletion.value, dataAfter: dAfter.aggregations.placedToCompletion.value,
+            unit: "Seconds",
+            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
+        
+        return try HBResponse(
+            status: .ok,
+            headers: .init([("contentType", "application/json")]),
+            body: .data(JSON(["change": change.json(),
+                              "metrics": [JSON(data: metricaovt.toData()),
+                                          JSON(data: metricMakeTimeT.toData())]
+                             ])
+                .toData())
+        )
+    }
+    
     func locations2(request: HBRequest) async throws -> HBResponse {
         
         let stores = Configuration.locations(ordered: true)
@@ -566,20 +643,20 @@ extension kip_dashboard {
         print( labels.count)
         let stores = Configuration.locations().map { location -> JSON in
             var data = r.filter { $0.locationId == location.id && $0.dateValue != remove }
-//            if location.name ==  "S6 - IWA2 / Puyallup" {
-                if data.count != labels.count {
-                    print( labels)
-                    data = labels.map { date -> OrdersByDayObj in
-                        print(date)
-                        if let dateValue = data.first( where: { $0.dateValue == date } ){
-                            return dateValue
-                        } else {
-                            return OrdersByDayObj(count: 0, timestamp: Date(), locationId: "here")
-                        }
+            //            if location.name ==  "S6 - IWA2 / Puyallup" {
+            if data.count != labels.count {
+                print( labels)
+                data = labels.map { date -> OrdersByDayObj in
+                    print(date)
+                    if let dateValue = data.first( where: { $0.dateValue == date } ){
+                        return dateValue
+                    } else {
+                        return OrdersByDayObj(count: 0, timestamp: Date(), locationId: "here")
                     }
-                    print( data)
-
-//                }
+                }
+                print( data)
+                
+                //                }
                 
             }
             return json {
@@ -663,4 +740,50 @@ extension String {
         result.append(self[start ..< endIndex])
         return result
     }
+}
+
+extension JSON {
+    var asDollars: JSON {
+        
+        switch self {
+        case .null:
+            return self
+        case .bool:
+            return self
+        case .string:
+            return self
+        case .number(let number):
+            let numberFormatter = NumberFormatter()
+            numberFormatter.numberStyle = .currency
+            numberFormatter.currencyCode = "USD"
+            
+            switch number {
+            case .int(let int):
+                return numberFormatter.string(from: (Double(int) / 100.0) as NSNumber).map { JSON($0) } ?? self
+            case .float(let float):
+                return numberFormatter.string(from: (float / 100.0) as NSNumber).map { JSON($0) } ?? self
+            case .double(let double):
+                return numberFormatter.string(from: (double / 100.0) as NSNumber).map { JSON($0) } ?? self
+            case .decimal(let decimal):
+                return numberFormatter.string(from: (decimal / 100.0) as NSNumber).map { JSON($0) } ?? self
+                
+            }
+        case .array:
+            return self
+        case .object:
+            return self
+        }
+    }
+}
+
+extension ClosedRange where Bound == Date {
+    var updateUpperBoundIfNeeded: ClosedRange {
+        let now = Date()
+        return self.upperBound > now ? self.lowerBound...now : self
+    }
+    func numberOfDaysInRange() -> Double {
+        let interval = upperBound.timeIntervalSince(lowerBound)
+        return interval / ( 24.0 * 3600.0)
+    }
+
 }

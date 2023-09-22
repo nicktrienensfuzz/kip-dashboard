@@ -28,19 +28,24 @@ public struct TrackableChange: Codable {
     
     /// URL reference for more information on the change.
     public var referenceURL: String?
+    
+    public var metrics: [String]
     /// Initializes a new `TrackableChange`
     public init(
         date: Date,
         name: String,
         description: String,
         expectations: String,
-        referenceURL: String? = nil
+        referenceURL: String? = nil,
+        metrics: [String] = []
+
     ){
         self.date = date
         self.name = name
         self.description = description
         self.expectations = expectations
         self.referenceURL = referenceURL
+        self.metrics = metrics
     }
     // Coding keys for the properties of `TrackableChange`.
     enum CodingKeys: String, CodingKey {
@@ -49,6 +54,7 @@ public struct TrackableChange: Codable {
         case description = "description"
         case expectations = "expectations"
         case referenceURL = "referenceURL"
+        case metrics
     }
     /**
      Decodes a `TrackableChange` instance from the provided Decoder.
@@ -62,6 +68,7 @@ public struct TrackableChange: Codable {
         description = try values.decode(String.self, forKey: .description)
         expectations = try values.decode(String.self, forKey: .expectations)
         referenceURL = try? values.decodeIfPresent(String.self, forKey: .referenceURL)
+        metrics = (try? values.decodeIfPresent([String].self, forKey: .metrics)) ?? []
     }
     /**
      Encodes this value into the given encoder.
@@ -76,7 +83,9 @@ public struct TrackableChange: Codable {
         if let value = referenceURL {
             try container.encode(value, forKey: .referenceURL)
         }
+        try container.encode(metrics, forKey: .metrics)
     }
+    
     // Converts the `TrackableChange` instance back into a Swift equivalent.
     public func toSwift() -> String {
             """
