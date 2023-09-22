@@ -15,11 +15,12 @@ extension Configuration {
                 name: "Swapping customize",
                 description: "Swapping customize and add to order buttons on the PDP",
                 expectations: "More customized items, after Sep 13, 2023",
-                referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/PDP%20-%20Base%20%28B%29.png"),
+                referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/PDP%20-%20Base%20%28B%29.png",
+                metrics: ["%ItemsModified", "placedToCompletion", "averageOrderValue"]),
             .init(
                 date: "May 23, 2023".asDate.unwrapped(),
                 name: "KDS Make Instructions",
-                description: "KDS Make instructions displayed complete.",
+                description: "KDS Make instructions",
                 expectations: "Faster make times, faster training of new associates Released May 23rd",
                 referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/",
                 metrics: ["placedToCompletion", "averageOrderValue"])]

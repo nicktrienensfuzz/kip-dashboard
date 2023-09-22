@@ -28,6 +28,7 @@ export interface TrackedChangeMetric {
   daysIntervalBefore: number;
   displayName: string;
   unit: string;
+  percentChange: string|null;
 }
 
 export interface SingleMetric {

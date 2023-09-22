@@ -35,7 +35,7 @@ export default function ChangeSummaryKDS() {
         <div>Loading...</div>
       ) : (
         <Stack sx={{ marginTop: 3 }}>
-          <Typography variant="h5">
+          <Typography variant="h4">
             {itemModicationData.change.description}
           </Typography>
           <Typography variant="h6" gutterBottom>
@@ -44,6 +44,7 @@ export default function ChangeSummaryKDS() {
           <Stack direction="row" spacing={2}>
             <OutlinedChangeCard value={itemModicationData.metrics[0]} />
             <OutlinedChangeCard value={itemModicationData.metrics[1]} />
+            <OutlinedChangeCard value={itemModicationData.metrics[2]} />
           </Stack>
         </Stack>
       )}

@@ -83,7 +83,7 @@ const OutlinedHistoryCard: React.FunctionComponent<
   }
 
   return (
-    <Box sx={{ minWidth: 275, maxWidth: "355px" }}>
+    <Box sx={{ minWidth: 300, maxWidth: 300, width: 300 }}>
       <Card variant="outlined">
         <CardContent>
           <Typography variant="h5" color="text.secondary" gutterBottom>

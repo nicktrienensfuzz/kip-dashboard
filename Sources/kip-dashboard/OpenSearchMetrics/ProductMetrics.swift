@@ -10,6 +10,124 @@ import Foundation
 import JSON
 
 struct ProductMetrics {
+    static let locationFilterToRemoveTestingStores = """
+          "must_not": [
+            {
+              "match_phrase": {
+                "locationId.keyword": "LKA2D3148RFDC"
+              }
+            },
+            {
+              "match_phrase": {
+                "locationId.keyword": "LRFMGA54WSD4E"
+              }
+            },
+            {
+              "match_phrase": {
+                "locationId.keyword": "LGFRKXEFPBDVA"
+              }
+            }
+          ]
+        """
+    
+    static func averageItemData(
+        startDate inStartDate: Date? = nil,
+                          endDate inEndDate: Date? = nil) async throws -> JSON {
+        let startDate: Date
+        let endDate: Date
+        if let inStartDate {
+            startDate = inStartDate
+        } else {
+            startDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .backward)
+                .unwrapped()
+                .rawStartOfDay - 12.weeks
+        }
+        if let inEndDate {
+            endDate = inEndDate
+        } else {
+            endDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .forward)
+                .unwrapped()
+                .startOfDay
+        }
+        
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*-lineitems-prod"
+        let query = """
+        {
+          "aggs": {
+            "totalCost": {
+              "sum": {
+                "field": "totalCost"
+              }
+            },
+            "averageOrderValue": {
+              "avg": {
+                "field": "totalCost"
+              }
+            },
+            "claimedToCompletion": {
+              "avg": {
+                "field": "claimedToCompletion"
+              }
+            },
+            "itemCount": {
+              "sum": {
+                "field": "itemCount"
+              }
+            },
+            "avgItemCount": {
+              "avg": {
+                "field": "itemCount"
+              }
+            },
+            "placedToCompletion": {
+              "avg": {
+                "field": "placedToCompletion"
+              }
+            }
+          },
+          "size": 0,
+          "stored_fields": [
+            "*"
+          ],
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {
+                    
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  }
+                }
+              ],
+              "should": [],
+              \(locationFilterToRemoveTestingStores)
+            }
+          }
+        }
+        """
+        let result = try await makeRequest(query: query, index: index)
+        return result
+    }
+    
     static func averageOrderData(
         startDate inStartDate: Date? = nil,
                           endDate inEndDate: Date? = nil) async throws -> JSON {
@@ -99,18 +217,7 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-              "must_not": [
-                {
-                  "match_phrase": {
-                    "locationId.keyword": "LKA2D3148RFDC"
-                  }
-                },
-                {
-                  "match_phrase": {
-                    "locationId.keyword": "LGFRKXEFPBDVA"
-                  }
-                }
-              ]
+              \(locationFilterToRemoveTestingStores)
             }
           }
         }
@@ -214,18 +321,7 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-                "must_not": [
-                  {
-                    "match_phrase": {
-                      "locationId.keyword": "LKA2D3148RFDC"
-                    }
-                  },
-                  {
-                    "match_phrase": {
-                      "locationId.keyword": "LGFRKXEFPBDVA"
-                    }
-                  }
-                ]
+              \(locationFilterToRemoveTestingStores)
             }
           }
         }
@@ -258,6 +354,11 @@ struct ProductMetrics {
                         },
                         {
                           "match_phrase": {
+                            "locationId.keyword": "LRFMGA54WSD4E"
+                          }
+                        },
+                        {
+                          "match_phrase": {
                             "locationId.keyword": "LGFRKXEFPBDVA"
                           }
                         }
@@ -269,6 +370,11 @@ struct ProductMetrics {
                 {
                   "match_phrase": {
                     "locationId.keyword": "LKA2D3148RFDC"
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LRFMGA54WSD4E"
                   }
                 },
                 {
@@ -348,6 +454,11 @@ struct ProductMetrics {
                             "locationId.keyword": "LKA2D3148RFDC"
                           }
                         },
+                            {
+                              "match_phrase": {
+                                "locationId.keyword": "LRFMGA54WSD4E"
+                              }
+                            },
                         {
                           "match_phrase": {
                             "locationId.keyword": "LGFRKXEFPBDVA"
@@ -361,6 +472,11 @@ struct ProductMetrics {
                 {
                   "match_phrase": {
                     "locationId.keyword": "LKA2D3148RFDC"
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "locationId.keyword": "LRFMGA54WSD4E"
                   }
                 },
                 {
@@ -424,8 +540,6 @@ struct ProductMetrics {
     }
     
     static func itemData( startDate: Date, endDate: Date) async throws -> JSON {
-        //        let startDate = try Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay - 12.weeks
-        //        let endDate = try Date().moveToDayOfWeek(.sunday, direction: .forward).unwrapped().startOfDay
         
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
@@ -496,18 +610,7 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-            "must_not": [
-              {
-                "match_phrase": {
-                  "locationId.keyword": "LKA2D3148RFDC"
-                }
-              },
-              {
-                "match_phrase": {
-                  "locationId.keyword": "LGFRKXEFPBDVA"
-                }
-              }
-            ]
+                \(locationFilterToRemoveTestingStores)
             }
           }
         }
@@ -609,18 +712,7 @@ struct ProductMetrics {
                 }
               ],
               "should": [],
-              "must_not": [
-                {
-                  "match_phrase": {
-                    "locationId.keyword": "LKA2D3148RFDC"
-                  }
-                },
-                {
-                  "match_phrase": {
-                    "locationId.keyword": "LGFRKXEFPBDVA"
-                  }
-                }
-              ]
+              \(locationFilterToRemoveTestingStores)
             }
           }
         }

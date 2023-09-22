@@ -46,33 +46,48 @@ const OutlinedChangeCard: React.FunctionComponent<OutlinedChangeCardProps> = ({
   };
 
   return (
-    <Box sx={{ minWidth: 210, maxWidth: 305 }}>
-      <Card variant="outlined" sx={{ minHeight: 180, height: "200px"}}>
+    <Box sx={{ minWidth: 300, maxWidth: 300, width: 300 }}>
+      <Card variant="outlined" sx={{ height: 220 }}>
         <CardContent>
           <Typography variant="h5" color="text.primary" gutterBottom>
             {value.displayName}
           </Typography>
 
-          <Stack direction="row">
+          <Stack direction="row" sx={{ width: 290 }}>
             <Stack>
               {buildValue(value.dataBefore, value.unit)}
 
-              <Typography fontSize={13} color="text.secondary">
-                {value.daysIntervalBefore.toFixed(2)} days before
+              <Typography fontSize={15} color="text.secondary">
+                {value.daysIntervalBefore.toFixed(0)} days before
               </Typography>
             </Stack>
 
             <Stack sx={{ marginLeft: "20px", marginRight: "20px" }}>
               <Divider orientation="vertical" />
             </Stack>
-            <Stack>
+            <Stack sx={{ alignContent: "right", textAlign: "right" }}>
               {buildValue(value.dataAfter, value.unit)}
-
               <Typography fontSize={15} color="text.secondary">
-                {value.daysIntervalAfter.toFixed(2)} days after
+                {value.daysIntervalAfter.toFixed(0)} days after
               </Typography>
             </Stack>
           </Stack>
+          {value.percentChange ? (
+            <Stack direction="row"
+               justifyContent="center"
+                alignItems="center"
+                sx={{ marginTop: "10px" }} 
+           >
+              <Typography fontSize={19} color="text.secondary">
+                Change:
+              </Typography>
+              <Typography fontSize={19} color="text.primary" sx={{ marginLeft: "10px" }} >
+                {value.percentChange}
+              </Typography>
+            </Stack>
+          ) : (
+            <></>
+          )}
         </CardContent>
 
         {/* {referenceURL ? (

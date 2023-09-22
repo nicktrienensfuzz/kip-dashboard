@@ -306,8 +306,9 @@ extension kip_dashboard {
         
         let metricaovt = TrackedChangeMetric(
             displayName: "averageOrderValue".trainCaseToSentenceCase(),
-            dataBefore: dBefore.aggregations.averageOrderValue.value.asDollars,
-            dataAfter: dAfter.aggregations.averageOrderValue.value.asDollars,
+            dataBefore: dBefore.aggregations.averageOrderValue.value,
+            dataAfter: dAfter.aggregations.averageOrderValue.value,
+            unit: "Dollars",
             dateRangeBefore: startDate ... inflectionDate,
             dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded
         )
@@ -515,24 +516,40 @@ extension kip_dashboard {
         
         let metricaovt = TrackedChangeMetric(
             displayName: "averageOrderValue".trainCaseToSentenceCase(),
-            dataBefore: dBefore.aggregations.averageOrderValue.value.asDollars, dataAfter: dAfter.aggregations.averageOrderValue.value.asDollars,
+            dataBefore: dBefore.aggregations.averageOrderValue.value,
+            dataAfter: dAfter.aggregations.averageOrderValue.value,
+            unit: "Dollars",
             dateRangeBefore: startDate ... inflectionDate,
             dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded
         )
         
         let metricMakeTimeT = TrackedChangeMetric(
-            displayName: "placedToCompletion".trainCaseToSentenceCase(),
+            displayName: "orderPlacedToCompletion".trainCaseToSentenceCase(),
             dataBefore: dBefore.aggregations.placedToCompletion.value, dataAfter: dAfter.aggregations.placedToCompletion.value,
             unit: "Seconds",
             dateRangeBefore: startDate ... inflectionDate,
             dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
+                
+        let itemBefore = try await ProductMetrics.averageItemData(startDate: startDate, endDate: inflectionDate)
+        
+        let itemAfter = try await ProductMetrics.averageItemData(startDate: inflectionDate, endDate: endDate )
+        
+        let metricItemMakeTimeClaimed = TrackedChangeMetric(
+            displayName: "itemClaimedToCompletion".trainCaseToSentenceCase(),
+            dataBefore: itemBefore.aggregations.claimedToCompletion.value,
+            dataAfter: itemAfter.aggregations.claimedToCompletion.value,
+            unit: "Seconds",
+            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
+        
         
         return try HBResponse(
             status: .ok,
             headers: .init([("contentType", "application/json")]),
             body: .data(JSON(["change": change.json(),
                               "metrics": [JSON(data: metricaovt.toData()),
-                                          JSON(data: metricMakeTimeT.toData())]
+                                          JSON(data: metricMakeTimeT.toData()),
+                                          JSON(data:      metricItemMakeTimeClaimed.toData())]
                              ])
                 .toData())
         )
@@ -743,15 +760,27 @@ extension String {
 }
 
 extension JSON {
+    var numberAsFloat: Float? {
+        switch self {
+        case .number(let number):
+            switch number {
+            case .int(let int):
+                return Float(int)
+            case .float(let float):
+                return float
+            case .double(let double):
+                return Float(double)
+            case .decimal(let decimal):
+                return Float(decimal.description)
+            }
+        default:
+            return nil
+        }
+    }
+    
     var asDollars: JSON {
         
         switch self {
-        case .null:
-            return self
-        case .bool:
-            return self
-        case .string:
-            return self
         case .number(let number):
             let numberFormatter = NumberFormatter()
             numberFormatter.numberStyle = .currency
@@ -768,10 +797,9 @@ extension JSON {
                 return numberFormatter.string(from: (decimal / 100.0) as NSNumber).map { JSON($0) } ?? self
                 
             }
-        case .array:
+        default:
             return self
-        case .object:
-            return self
+        
         }
     }
 }
