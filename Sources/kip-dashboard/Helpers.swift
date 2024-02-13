@@ -18,10 +18,10 @@ extension Configuration {
                 referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/PDP%20-%20Base%20%28B%29.png",
                 metrics: ["%ItemsModified", "placedToCompletion", "averageOrderValue"]),
             .init(
-                date: "May 23, 2023".asDate.unwrapped(),
-                name: "KDS Make Instructions",
-                description: "KDS Make instructions",
-                expectations: "Faster make times, faster training of new associates Released May 23rd",
+                date: "Jun 5, 2023".asDate.unwrapped(),
+                name: "KDS Make Instruction Improvements",
+                description: "KDS Make Instruction Improvements",
+                expectations: "Released June 5th",
                 referenceURL: "https://amzgokiosk.s3.us-west-2.amazonaws.com/reference/",
                 metrics: ["placedToCompletion", "averageOrderValue"])]
         
@@ -35,7 +35,7 @@ extension Configuration {
             LDEXERFMT41CP\tS3 - ILS3 / Torrance\tNov 1, 2022\tLA
             LVKKYXS44H0VM\tS4 - ILS2 / Woodland Hills\tDec 1, 2022\tLA
             LVB2TEKH5W0WK\tS5 - IWA3 / Frederickson\tFeb 14, 2023\tSouth Seattle
-            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1, 2023\tSouth Seattle
+            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 26, 2023\tSouth Seattle
             """
         } else {
             storesText = """
@@ -44,7 +44,7 @@ extension Configuration {
             LVB2TEKH5W0WK\tS5 - IWA3 / Frederickson\tFeb 14, 2023\tSouth Seattle
             L208AAG3MR0A1\tS2 - ILS1 / Whittier\tSep 19, 2022\tLA
             LVKKYXS44H0VM\tS4 - ILS2 / Woodland Hills\tDec 1, 2022\tLA
-            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 1, 2023\tSouth Seattle
+            LRFMGA54WSD4E\tS6 - IWA2 / Puyallup\tSep 26, 2023\tSouth Seattle
             """
         }
         

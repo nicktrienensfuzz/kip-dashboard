@@ -50,7 +50,7 @@ private enum HTTPClientKey: DependencyKey {
             read: .seconds(25)
         )
         let httpClient = HTTPClient(
-            eventLoopGroupProvider: .createNew,
+            eventLoopGroupProvider: .singleton,
             configuration: HTTPClient.Configuration(timeout: timeout)
         )
         return httpClient

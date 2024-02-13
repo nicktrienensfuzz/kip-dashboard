@@ -52,6 +52,7 @@ struct ProductMetrics {
                 .startOfDay
         }
         
+         
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -130,7 +131,8 @@ struct ProductMetrics {
     
     static func averageOrderData(
         startDate inStartDate: Date? = nil,
-                          endDate inEndDate: Date? = nil) async throws -> JSON {
+        endDate inEndDate: Date? = nil) async throws -> JSON {
+            
         let startDate: Date
         let endDate: Date
         if let inStartDate {
@@ -150,6 +152,21 @@ struct ProductMetrics {
                 .startOfDay
         }
         
+                              let lowBound = 34
+                              let highBound = 900// 650
+                              /*
+                               ,
+                               {
+                                 "range": {
+                                   "placedToCompletion": {
+                                     "gte": "\(lowBound)",
+                                     "lte": "\(highBound)",
+                                   }
+                                 }
+                               }
+                               */
+                              
+                              
         let dateFormatter = DateFormatter()
         dateFormatter.timeZone = TimeZone(abbreviation: "PST")
         dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
@@ -182,6 +199,21 @@ struct ProductMetrics {
                 "field": "placedToCompletion"
               }
             },
+            "matrixPlacedToCompletion": {
+              "matrix_stats": {
+                "fields": ["placedToCompletion"]
+              }
+            },
+            "extendedPlacedToCompletion": {
+              "extended_stats": {
+                "field": "placedToCompletion"
+              }
+            },
+                    "percentilePlacedToCompletion": {
+                      "percentiles": {
+                        "field": "placedToCompletion"
+                      }
+                    },
             "modifierCount": {
               "avg": {
                 "field": "lineItems.modifierCount"
@@ -225,6 +257,137 @@ struct ProductMetrics {
         let result = try await makeRequest(query: query, index: index)
         return result
     }
+    static func averageHighTrafficOrderData(
+        startDate inStartDate: Date? = nil,
+        endDate inEndDate: Date? = nil) async throws -> JSON {
+            
+        let startDate: Date
+        let endDate: Date
+        if let inStartDate {
+            startDate = inStartDate
+        } else {
+            startDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .backward)
+                .unwrapped()
+                .rawStartOfDay - 12.weeks
+        }
+        if let inEndDate {
+            endDate = inEndDate
+        } else {
+            endDate = try Date()
+                .moveToDayOfWeek(.sunday, direction: .forward)
+                .unwrapped()
+                .startOfDay
+        }
+        
+                              let lowBound = 34
+                              let highBound = 900// 650
+                              /*
+                               ,
+                               {
+                                 "range": {
+                                   "placedToCompletion": {
+                                     "gte": "\(lowBound)",
+                                     "lte": "\(highBound)",
+                                   }
+                                 }
+                               }
+                               */
+                              
+                              
+        let dateFormatter = DateFormatter()
+        dateFormatter.timeZone = TimeZone(abbreviation: "PST")
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let index = "*orders-prod"
+        let query = """
+        {
+          "aggs": {
+            "totalCost": {
+              "sum": {
+                "field": "totalCost"
+              }
+            },
+            "averageOrderValue": {
+              "avg": {
+                "field": "totalCost"
+              }
+            },
+            "itemCount": {
+              "sum": {
+                "field": "itemCount"
+              }
+            },
+            "avgItemCount": {
+              "avg": {
+                "field": "itemCount"
+              }
+            },
+            "placedToCompletion": {
+              "avg": {
+                "field": "placedToCompletion"
+              }
+            },
+            "matrixPlacedToCompletion": {
+              "matrix_stats": {
+                "fields": ["placedToCompletion"]
+              }
+            },
+            "extendedPlacedToCompletion": {
+              "extended_stats": {
+                "field": "placedToCompletion"
+              }
+            },
+            "percentilePlacedToCompletion": {
+              "percentiles": {
+                "field": "placedToCompletion"
+              }
+            },
+            "modifierCount": {
+              "avg": {
+                "field": "lineItems.modifierCount"
+              }
+            }
+          },
+          "size": 0,
+          "stored_fields": [
+            "*"
+          ],
+          "query": {
+            "bool": {
+              "must": [],
+              "filter": [
+                {
+                  "match_all": {
+                    
+                  }
+                },
+                {
+                  "match_phrase": {
+                    "state": "completed"
+                  }
+                },
+                {
+                  "range": {
+                    "placedAt": {
+                      "gte": "\(dateFormatter.string(from: startDate))",
+                      "lte": "\(dateFormatter.string(from: endDate))",
+                      "format": "strict_date_optional_time"
+                    }
+                  },
+                  {"range": {"placedAtPacificHour": { "gte": 10, "lte": 14 } } }
+              ],
+              \(locationFilterToRemoveTestingStores)
+            }
+          }
+        }
+        """
+            
+        print(query)
+            
+        let result = try await makeRequest(query: query, index: index)
+        return result
+    }
+    
     static func orderData(startDate inStartDate: Date? = nil,
                           endDate inEndDate: Date? = nil) async throws -> JSON {
         let startDate: Date

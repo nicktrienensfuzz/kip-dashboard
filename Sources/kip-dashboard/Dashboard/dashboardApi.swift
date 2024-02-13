@@ -263,9 +263,9 @@ extension kip_dashboard {
     func itemModificationForChange(request: HBRequest) async throws -> HBResponse {
         let change = try Configuration.trackableChanges().first.unwrapped()
         
-        let startDate = change.date.rawStartOfDay - 3.weeks
+        let startDate = change.date.rawStartOfDay - 4.weeks
         let inflectionDate = change.date.rawStartOfDay
-        let endDate = change.date.rawStartOfDay + 3.weeks
+        let endDate = change.date.rawStartOfDay + 4.weeks
 
         
         let withoutModificationBefore = try await ProductMetrics.itemModificationDataSummary(
@@ -506,40 +506,64 @@ extension kip_dashboard {
         }
         let change = changes[1]
         
-        let startDate = change.date.rawStartOfDay - 15.weeks
+        let startDate = change.date.rawStartOfDay - 16.weeks
+        let startInflectionDate = change.date.rawStartOfDay
         let inflectionDate = change.date.rawStartOfDay
-        let endDate = change.date.rawStartOfDay + 15.weeks
+        let endDate = change.date.rawStartOfDay + 16.weeks
         
-        let dBefore = try await ProductMetrics.averageOrderData(startDate: startDate, endDate: inflectionDate)
-        
+        let dBefore = try await ProductMetrics.averageOrderData(startDate: startDate, endDate: startInflectionDate)
         let dAfter = try await ProductMetrics.averageOrderData(startDate: inflectionDate, endDate: endDate )
+        
+        
+        let dBeforePeak = try await ProductMetrics.averageHighTrafficOrderData(startDate: startDate, endDate: startInflectionDate)
+        let dAfterPeak = try await ProductMetrics.averageHighTrafficOrderData(startDate: inflectionDate, endDate: endDate )
+        
+        try print(dBefore.aggregations.matrixPlacedToCompletion.toString(outputFormatting: .prettyPrinted))
+        try print(dBefore.aggregations.extendedPlacedToCompletion.toString(outputFormatting: .prettyPrinted))
+        try print(dBefore.aggregations.percentilePlacedToCompletion.toString(outputFormatting: .prettyPrinted))
+        try print(dAfter.aggregations.percentilePlacedToCompletion.toString(outputFormatting: .prettyPrinted))
+        
+        print(dBeforePeak)
+        try print(dBeforePeak.aggregations.percentilePlacedToCompletion.toString(outputFormatting: .prettyPrinted))
+        try print(dAfterPeak.aggregations.percentilePlacedToCompletion.toString(outputFormatting: .prettyPrinted))
+        
+        print(dAfter)
+//        print(dBefore.aggregations.matrixPlacedToCompletion.fields.0.mean)
         
         let metricaovt = TrackedChangeMetric(
             displayName: "averageOrderValue".trainCaseToSentenceCase(),
             dataBefore: dBefore.aggregations.averageOrderValue.value,
             dataAfter: dAfter.aggregations.averageOrderValue.value,
             unit: "Dollars",
-            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeBefore: startDate ... startInflectionDate,
             dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded
         )
         
-        let metricMakeTimeT = TrackedChangeMetric(
-            displayName: "orderPlacedToCompletion".trainCaseToSentenceCase(),
-            dataBefore: dBefore.aggregations.placedToCompletion.value, dataAfter: dAfter.aggregations.placedToCompletion.value,
+        let metricAverageMakeTimeT = TrackedChangeMetric(
+            displayName: "averageOrderMakeTime".trainCaseToSentenceCase(),
+            dataBefore: dBefore.aggregations.placedToCompletion.value,
+            dataAfter: dAfter.aggregations.placedToCompletion.value,
             unit: "Seconds",
-            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeBefore: startDate ... startInflectionDate,
             dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
-                
-        let itemBefore = try await ProductMetrics.averageItemData(startDate: startDate, endDate: inflectionDate)
         
-        let itemAfter = try await ProductMetrics.averageItemData(startDate: inflectionDate, endDate: endDate )
+        let metricMeanMakeTime = TrackedChangeMetric(
+            displayName: "stdDeviationOrderPlacedToCompletion".trainCaseToSentenceCase(),
+            dataBefore: dBefore.aggregations.extendedPlacedToCompletion.std_deviation,
+            dataAfter:  dAfter.aggregations.extendedPlacedToCompletion.std_deviation,
+            unit: "Seconds",
+            dateRangeBefore: startDate ... startInflectionDate,
+            dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
+        
+        let itemBefore = try await ProductMetrics.averageItemData(startDate: startDate, endDate: inflectionDate)
+        let itemAfter = try await ProductMetrics.averageItemData(startDate: startInflectionDate, endDate: endDate )
         
         let metricItemMakeTimeClaimed = TrackedChangeMetric(
-            displayName: "itemClaimedToCompletion".trainCaseToSentenceCase(),
+            displayName: "averageItemMakeTime".trainCaseToSentenceCase(),
             dataBefore: itemBefore.aggregations.claimedToCompletion.value,
             dataAfter: itemAfter.aggregations.claimedToCompletion.value,
             unit: "Seconds",
-            dateRangeBefore: startDate ... inflectionDate,
+            dateRangeBefore: startDate ... startInflectionDate,
             dateRangeAfter: (inflectionDate ... endDate).updateUpperBoundIfNeeded)
         
         
@@ -548,8 +572,9 @@ extension kip_dashboard {
             headers: .init([("contentType", "application/json")]),
             body: .data(JSON(["change": change.json(),
                               "metrics": [JSON(data: metricaovt.toData()),
-                                          JSON(data: metricMakeTimeT.toData()),
-                                          JSON(data:      metricItemMakeTimeClaimed.toData())]
+                                          JSON(data: metricAverageMakeTimeT.toData()),
+                                          JSON(data: metricItemMakeTimeClaimed.toData()),
+                                          JSON(data: metricMeanMakeTime.toData())]
                              ])
                 .toData())
         )

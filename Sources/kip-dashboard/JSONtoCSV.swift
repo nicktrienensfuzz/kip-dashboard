@@ -110,7 +110,7 @@ func jsonToCsv(jsonArray: [JSON], headers headerIn: String = "id,name", includeH
     extension JSON {
         func scalarValueToString() -> String? {
             if isString {
-                if let strValue = string, strValue.contains(",") {
+                if let strValue = string, strValue.contains(", ") {
                     return "\"\(strValue)\""
                 }
                 return string
