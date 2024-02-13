@@ -42,9 +42,9 @@ export default function ChangeSummaryKDS() {
             {itemModicationData.change.expectations}
           </Typography>
           <Stack direction="row" spacing={2}>
-            <OutlinedChangeCard value={itemModicationData.metrics[0]} />
             <OutlinedChangeCard value={itemModicationData.metrics[1]} />
             <OutlinedChangeCard value={itemModicationData.metrics[2]} />
+            <OutlinedChangeCard value={itemModicationData.metrics[0]} />
           </Stack>
         </Stack>
       )}

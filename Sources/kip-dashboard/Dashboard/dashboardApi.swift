@@ -314,7 +314,7 @@ extension kip_dashboard {
         )
         
         let metricMakeTimeT = TrackedChangeMetric(
-            displayName: "placedToCompletion".trainCaseToSentenceCase(),
+            displayName: "OrderPlacedToCompletion".trainCaseToSentenceCase(),
             dataBefore: dBefore.aggregations.placedToCompletion.value, dataAfter: dAfter.aggregations.placedToCompletion.value,
             unit: "Seconds",
             dateRangeBefore: startDate ... inflectionDate,
@@ -647,7 +647,7 @@ extension kip_dashboard {
     
     
     func allLocationsOrdersByDay(request: HBRequest) async throws -> HBResponse {
-        let date = try (Date() - 120.days).moveToDayOfWeek(.sunday, direction: .backward).unwrapped()
+        let date = try (Date() - 320.days).moveToDayOfWeek(.sunday, direction: .backward).unwrapped()
         let r = try await OpenSearchMetrics.ordersByDay(
             startDate: date.rawStartOfDay,
             endDate: Date().moveToDayOfWeek(.sunday, direction: .backward).unwrapped().rawStartOfDay

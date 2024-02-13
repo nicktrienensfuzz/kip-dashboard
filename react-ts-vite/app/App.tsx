@@ -52,6 +52,7 @@ ChartJS.register(
 
 export default function App() {
   const [jwt, setJwt] = useState(null);
+  const [tokenFailed, setTokenFailed] = useState(false);
   const [isLoading, setLoading] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -88,7 +89,8 @@ export default function App() {
     setJwt("");
     localStorage.removeItem("myToken");
     axios.defaults.headers.common["Authorization"] = null;
-    window.open = import.meta.env.VITE_URL;
+    window.open = import.meta.env.VITE_SITE_URL;
+    window.location = import.meta.env.VITE_SITE_URL;
   };
 
   const handleClose = () => {
@@ -125,6 +127,11 @@ export default function App() {
       } catch (error) {
         // console.log(error);
         console.log(`Error fetching data: ${error}`);
+        setJwt("");
+        localStorage.removeItem("myToken");
+        axios.defaults.headers.common["Authorization"] = null;
+        window.location = import.meta.env.VITE_SITE_URL;
+        setTokenFailed(true);
       }
     }
     console.log("Token effect: ", jwt);
@@ -216,7 +223,11 @@ export default function App() {
       {/* <ItemForm /> */}
 
       {jwt === null || isLoading ? (
+        <>
+        {tokenFailed && (<Typography variant="h4" component="div" > Login Token failed.</Typography>)
+      }
         <EmailForm />
+        </>
       ) : (
         <Container>
           <Box component="main" sx={{ p: 2, maxWidth: "1050px" }}>
